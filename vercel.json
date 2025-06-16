@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next",
+      "config": {
+        "buildCommand": "next build",
+        "outputDirectory": "out"
+      }
+    }
+  ],
+  "env": {
+    "NEXT_PRIVATE_STANDALONE": "true",
+    "NEXT_PUBLIC_FORCE_CLIENT": "true"
+  }
+}

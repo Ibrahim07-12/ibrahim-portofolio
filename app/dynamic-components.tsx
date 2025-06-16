@@ -1,3 +1,4 @@
+'use client'
 import dynamic from 'next/dynamic'
 
 // Import components that use browser APIs with ssr: false

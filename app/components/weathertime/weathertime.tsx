@@ -26,7 +26,7 @@ export default function WeatherTime() {
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const API_KEY = "78131ca6e4671bc11c4a4520a02c2a91";
+        const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY || "78131ca6e4671bc11c4a4520a02c2a91";
         const city = "Yogyakarta";
         
         const response = await fetch(

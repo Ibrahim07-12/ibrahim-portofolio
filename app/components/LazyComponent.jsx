@@ -1,3 +1,4 @@
+'use client';
 import { Suspense, lazy, useState, useEffect } from 'react';
 
 // Loader placeholder

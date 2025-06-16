@@ -1,6 +1,7 @@
 "use client";
 import PixelCard from "../PixelCard/PixelCard";
 import Beams from "../Beams/Beams";
+import { ClientOnly } from "../ClientOnly";
 import {
   useMotionValueEvent,
   useScroll,
@@ -38,6 +39,7 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
     <div className="w-full min-h-screen font-sans relative" ref={containerRef}>
       {/* Background Layer (z-[1]) */}
        <div className="absolute inset-0 z-[1]">
+        <ClientOnly>
         <Beams
           beamWidth={2}
           beamHeight={15}
@@ -48,6 +50,7 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
           scale={0.2}
           rotation={45}
         />
+        </ClientOnly>
       </div>
       <div className="absolute inset-0 z-[2]">
         <PixelCard
