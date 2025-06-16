@@ -1,17 +1,9 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next",
-      "config": {
-        "buildCommand": "next build",
-        "outputDirectory": "out"
-      }
-    }
-  ],
-  "env": {
-    "NEXT_PRIVATE_STANDALONE": "true",
-    "NEXT_PUBLIC_FORCE_CLIENT": "true"
+  "buildCommand": "node build-static.js",
+  "outputDirectory": "out",
+  "framework": null,
+  "installCommand": "npm install --legacy-peer-deps",
+  "environment": {
+    "NEXT_DISABLE_PRERENDER": "true"
   }
 }

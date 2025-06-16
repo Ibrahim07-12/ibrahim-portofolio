@@ -1,19 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Konfigurasi sebagai Static Site
   output: 'export',
-  // Nonaktifkan image optimization
   images: {
     unoptimized: true,
   },
-  // Abaikan semua error saat build
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Matikan semua proses SSR/SSG
   experimental: {
     optimizePackageImports: [],
   },
