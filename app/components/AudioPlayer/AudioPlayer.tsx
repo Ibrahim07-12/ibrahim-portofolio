@@ -1,18 +1,25 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import dynamic from 'next/dynamic'; // ✅ Add: Import dynamic
 
 interface AudioPlayerProps {
   className?: string;
 }
 
-export function AudioPlayer({ className }: AudioPlayerProps) {
+const AudioPlayerComponent = ({ className }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.3);
   const [showControls, setShowControls] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isMounted, setIsMounted] = useState(false); // ✅ Add: Client-side detection
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // ✅ Add: Client-side detection with useEffect
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -51,11 +58,25 @@ export function AudioPlayer({ className }: AudioPlayerProps) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  // ✅ Update: Only set volume after mounting
   useEffect(() => {
-    if (audioRef.current) {
+    if (isMounted && audioRef.current) {
       audioRef.current.volume = volume;
     }
-  }, []);
+  }, [isMounted, volume]);
+
+  // ✅ Add: Return simplified placeholder during SSR/SSG
+  if (!isMounted) {
+    return (
+      <div className={`fixed bottom-6 right-6 z-50 ${className}`}>
+        <div className="w-14 h-14 rounded-full bg-black/70 flex items-center justify-center">
+          <svg className="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`fixed bottom-6 right-6 z-50 ${className}`}>
@@ -264,4 +285,9 @@ export function AudioPlayer({ className }: AudioPlayerProps) {
       `}</style>
     </div>
   );
-}
+};
+
+// ✅ Add: Export dengan dynamic import untuk mencegah SSR
+export const AudioPlayer = dynamic(() => Promise.resolve(AudioPlayerComponent), {
+  ssr: false
+});

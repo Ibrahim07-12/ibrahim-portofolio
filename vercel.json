@@ -1,9 +1,0 @@
-{
-  "buildCommand": "node build-static.js",
-  "outputDirectory": "out",
-  "framework": null,
-  "installCommand": "npm install --legacy-peer-deps",
-  "environment": {
-    "NEXT_DISABLE_PRERENDER": "true"
-  }
-}

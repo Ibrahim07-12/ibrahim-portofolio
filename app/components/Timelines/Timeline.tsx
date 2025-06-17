@@ -1,5 +1,4 @@
 "use client";
-import PixelCard from "../PixelCard/PixelCard";
 import Beams from "../Beams/Beams";
 import { ClientOnly } from "../ClientOnly";
 import {
@@ -53,16 +52,6 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
         </ClientOnly>
       </div>
       <div className="absolute inset-0 z-[2]">
-        <PixelCard
-          variant="pink"
-          className="w-full h-full" 
-          speed={80}
-          gap={6}
-          colors="#fecdd3,#fda4af,#e11d48"
-          noFocus={false}
-        >
-          <div className="w-full h-full" />
-        </PixelCard>
       </div>
       
       {/* Content layer */}

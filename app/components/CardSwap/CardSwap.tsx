@@ -10,8 +10,12 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useState, // ✅ Add: Import useState
 } from "react";
-import gsap from "gsap";
+import dynamic from 'next/dynamic'; // ✅ Add: Import dynamic
+
+// ✅ Remove: Don't import GSAP at the module level
+// import gsap from "gsap";
 
 export interface CardSwapProps {
   width?: number | string;
@@ -68,20 +72,8 @@ const makeSlot = (
   zIndex: total - i,
 });
 
-const placeNow = (el: HTMLElement, slot: Slot, skew: number) =>
-  gsap.set(el, {
-    x: slot.x,
-    y: slot.y,
-    z: slot.z,
-    xPercent: -50,
-    yPercent: -50,
-    skewY: skew,
-    transformOrigin: "center center",
-    zIndex: slot.zIndex,
-    force3D: true,
-  });
-
-const CardSwap: React.FC<CardSwapProps> = ({
+// ✅ Renamed component for dynamic export
+const CardSwapComponent: React.FC<CardSwapProps> = ({
   width = 500,
   height = 400,
   cardDistance = 60,
@@ -97,6 +89,11 @@ const CardSwap: React.FC<CardSwapProps> = ({
   translateX = '5%',
   translateY = '20%',
 }) => {
+  // ✅ Add: Client-side detection
+  const [isMounted, setIsMounted] = useState(false);
+  const [gsapLoaded, setGsapLoaded] = useState(false);
+  const [gsapInstance, setGsapInstance] = useState<any>(null);
+
   const config =
     easing === "elastic"
       ? {
@@ -122,33 +119,72 @@ const CardSwap: React.FC<CardSwapProps> = ({
   );
   const refs = useMemo<CardRef[]>(
     () => childArr.map(() => React.createRef<HTMLDivElement>()),
-    [childArr.length]
+    [childArr]
   );
 
   const order = useRef<number[]>(
     Array.from({ length: childArr.length }, (_, i) => i)
   );
 
-  const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const tlRef = useRef<any | null>(null);
   const intervalRef = useRef<number>();
   const container = useRef<HTMLDivElement>(null);
 
+  // ✅ Add: Load GSAP only in browser
   useEffect(() => {
-  const total = refs.length;
-  refs.forEach((r, i) =>
-    placeNow(
-      r.current!,
-      makeSlot(i, cardDistance, verticalDistance, total, position),
-      position === 'right' ? -skewAmount : skewAmount
-    )
-  );
+    setIsMounted(true);
+    
+    // Dynamically import GSAP
+    const loadGsap = async () => {
+      try {
+        const gsapModule = await import('gsap');
+        setGsapInstance(gsapModule.gsap);
+        setGsapLoaded(true);
+      } catch (error) {
+        console.error("Error loading GSAP:", error);
+      }
+    };
+    
+    loadGsap();
+  }, []);
+
+  // ✅ Move GSAP function inside useEffect
+  useEffect(() => {
+    if (!isMounted || !gsapLoaded || !gsapInstance) return;
+    
+    // Function to set element position
+    const placeNow = (el: HTMLElement, slot: Slot, skew: number) =>
+      gsapInstance.set(el, {
+        x: slot.x,
+        y: slot.y,
+        z: slot.z,
+        xPercent: -50,
+        yPercent: -50,
+        skewY: skew,
+        transformOrigin: "center center",
+        zIndex: slot.zIndex,
+        force3D: true,
+      });
+    
+    const total = refs.length;
+    refs.forEach((r, i) => {
+      if (r.current) {
+        placeNow(
+          r.current,
+          makeSlot(i, cardDistance, verticalDistance, total, position),
+          position === 'right' ? -skewAmount : skewAmount
+        );
+      }
+    });
 
     const swap = () => {
       if (order.current.length < 2) return;
 
       const [front, ...rest] = order.current;
       const elFront = refs[front].current!;
-      const tl = gsap.timeline();
+      if (!elFront) return;
+      
+      const tl = gsapInstance.timeline();
       tlRef.current = tl;
 
       tl.to(elFront, {
@@ -160,6 +196,8 @@ const CardSwap: React.FC<CardSwapProps> = ({
       tl.addLabel("promote", `-=${config.durDrop * config.promoteOverlap}`);
       rest.forEach((idx, i) => {
         const el = refs[idx].current!;
+        if (!el) return;
+        
         const slot = makeSlot(i, cardDistance, verticalDistance, refs.length, position);
         tl.set(el, { zIndex: slot.zIndex }, "promote");
         tl.to(
@@ -175,17 +213,18 @@ const CardSwap: React.FC<CardSwapProps> = ({
         );
       });
 
-       const backSlot = makeSlot(
-      refs.length - 1,
-      cardDistance,
-      verticalDistance,
-      refs.length,
-      position
-    );
+      const backSlot = makeSlot(
+        refs.length - 1,
+        cardDistance,
+        verticalDistance,
+        refs.length,
+        position
+      );
+      
       tl.addLabel("return", `promote+=${config.durMove * config.returnDelay}`);
       tl.call(
         () => {
-          gsap.set(elFront, { zIndex: backSlot.zIndex });
+          gsapInstance.set(elFront, { zIndex: backSlot.zIndex });
         },
         undefined,
         "return"
@@ -207,28 +246,57 @@ const CardSwap: React.FC<CardSwapProps> = ({
     };
 
     swap();
-    intervalRef.current = window.setInterval(swap, delay);
+    
+    // ✅ Safe setInterval usage
+    if (typeof window !== 'undefined') {
+      intervalRef.current = window.setInterval(swap, delay);
+    }
 
-    if (pauseOnHover) {
-      const node = container.current!;
+    if (pauseOnHover && container.current) {
+      const node = container.current;
       const pause = () => {
-        tlRef.current?.pause();
-        clearInterval(intervalRef.current);
+        if (tlRef.current) tlRef.current.pause();
+        if (intervalRef.current && typeof window !== 'undefined') {
+          window.clearInterval(intervalRef.current);
+        }
       };
       const resume = () => {
-        tlRef.current?.play();
-        intervalRef.current = window.setInterval(swap, delay);
+        if (tlRef.current) tlRef.current.play();
+        if (typeof window !== 'undefined') {
+          intervalRef.current = window.setInterval(swap, delay);
+        }
       };
       node.addEventListener("mouseenter", pause);
       node.addEventListener("mouseleave", resume);
+      
       return () => {
         node.removeEventListener("mouseenter", pause);
         node.removeEventListener("mouseleave", resume);
-        clearInterval(intervalRef.current);
+        if (intervalRef.current && typeof window !== 'undefined') {
+          window.clearInterval(intervalRef.current);
+        }
       };
     }
-    return () => clearInterval(intervalRef.current);
-  }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing]);
+    
+    return () => {
+      if (intervalRef.current && typeof window !== 'undefined') {
+        window.clearInterval(intervalRef.current);
+      }
+    };
+  }, [
+    isMounted, 
+    gsapLoaded, 
+    gsapInstance, 
+    cardDistance, 
+    verticalDistance, 
+    delay, 
+    pauseOnHover, 
+    skewAmount, 
+    easing, 
+    position, 
+    refs, 
+    config
+  ]);
 
   const rendered = childArr.map((child, i) =>
     isValidElement<CardProps>(child)
@@ -244,25 +312,67 @@ const CardSwap: React.FC<CardSwapProps> = ({
       : child
   );
 
+  // ✅ Add: Static placeholder for SSG/SSR
+  if (!isMounted) {
+    return (
+      <div
+        className={`
+          relative
+          ${position === 'right' ? 'right-0' : 'left-0'}
+          transform 
+          ${position === 'right' ? 'translate-x-[30%]' : '-translate-x-[5%]'}  
+          translate-y-[20%] 
+          origin-bottom-${position} 
+          perspective-[900px] 
+          overflow-visible 
+          ${className}
+        `}
+        style={{ width, height }}
+      >
+        {/* Static cards for SSG */}
+        {childArr.map((child, i) => (
+          <div
+            key={i}
+            className={`
+              absolute top-1/2 left-1/2 rounded-xl border border-white bg-black
+              transform translate-x-[-50%] translate-y-[-50%] 
+              ${i === 0 ? 'z-10' : `z-${10-i}`} 
+              ${position === 'right' ? `translate-x-[${i*10}px]` : `translate-x-[${-i*10}px]`}
+              translate-y-[${-i*10}px]
+            `}
+            style={{ 
+              width, 
+              height, 
+              transform: `translate(-50%, -50%) translateX(${i * (cardDistance/2)}px) translateY(${-i * (verticalDistance/2)}px)`,
+            }}
+          >
+            {child}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
-  <div
-    ref={container}
-    className={`
-      relative
-      ${position === 'right' ? 'right-0' : 'left-0'}
-      transform 
-      ${position === 'right' ? 'translate-x-[30%]' : '-translate-x-[5%]'}  
-      translate-y-[20%] 
-      origin-bottom-${position} 
-      perspective-[900px] 
-      overflow-visible 
-      ${className}
-    `}
-    style={{ width, height }}
-  >
-    {rendered}
-  </div>
-);
+    <div
+      ref={container}
+      className={`
+        relative
+        ${position === 'right' ? 'right-0' : 'left-0'}
+        transform 
+        ${position === 'right' ? 'translate-x-[30%]' : '-translate-x-[5%]'}  
+        translate-y-[20%] 
+        origin-bottom-${position} 
+        perspective-[900px] 
+        overflow-visible 
+        ${className}
+      `}
+      style={{ width, height }}
+    >
+      {rendered}
+    </div>
+  );
 }; 
 
-export default CardSwap;
+// ✅ Add: Export with dynamic import
+export default dynamic(() => Promise.resolve(CardSwapComponent), { ssr: false });

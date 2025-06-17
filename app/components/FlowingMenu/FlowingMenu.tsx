@@ -1,7 +1,9 @@
 'use client'
 
-import React from "react";
-import { gsap } from "gsap";
+import React, { useState, useEffect } from "react"; // ✅ Add: Import useState and useEffect
+import dynamic from 'next/dynamic'; // ✅ Add: Import dynamic
+// ❌ Remove: Don't import GSAP at module level
+// import { gsap } from "gsap";
 
 interface MenuItemProps {
   link: string;
@@ -13,22 +15,97 @@ interface FlowingMenuProps {
   items?: MenuItemProps[];
 }
 
-const FlowingMenu: React.FC<FlowingMenuProps> = ({ items = [] }) => {
+// ✅ Rename: For dynamic export
+const FlowingMenuComponent: React.FC<FlowingMenuProps> = ({ items = [] }) => {
+  const [isMounted, setIsMounted] = useState(false); // ✅ Add: Client-side detection
+
+  // ✅ Add: Client-side detection
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // ✅ Add: Static placeholder for SSG
+  if (!isMounted) {
+    return (
+      <div className="w-full h-full overflow-hidden">
+        <nav className="flex flex-col h-full m-0 p-0">
+          {items.map((item, idx) => (
+            <div 
+              key={idx}
+              className="flex-1 relative overflow-hidden text-center shadow-[0_-1px_0_0_#fff]"
+            >
+              <div className="flex items-center justify-center h-full relative uppercase font-semibold text-white text-[4vh]">
+                {item.text}
+              </div>
+            </div>
+          ))}
+        </nav>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full overflow-hidden">
       <nav className="flex flex-col h-full m-0 p-0">
         {items.map((item, idx) => (
-          <MenuItem key={idx} {...item} />
+          <MenuItemWithGSAP key={idx} {...item} />
         ))}
       </nav>
     </div>
   );
 };
 
-const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
+// ✅ Add: Separate component for static rendering
+const MenuItemStatic: React.FC<MenuItemProps> = ({ link, text }) => {
+  return (
+    <div className="flex-1 relative overflow-hidden text-center shadow-[0_-1px_0_0_#fff]">
+      <a
+        className="flex items-center justify-center h-full relative cursor-pointer uppercase no-underline font-semibold text-white text-[4vh]"
+        href={link}
+      >
+        {text}
+      </a>
+    </div>
+  );
+};
+
+// ✅ Add: Wrapper component that conditionally uses GSAP
+const MenuItemWithGSAP: React.FC<MenuItemProps> = (props) => {
+  const [gsapLoaded, setGsapLoaded] = useState(false);
+  const [gsapInstance, setGsapInstance] = useState<any>(null);
+
+  useEffect(() => {
+    // ✅ Dynamically import GSAP
+    const loadGsap = async () => {
+      try {
+        const gsapModule = await import('gsap');
+        setGsapInstance(gsapModule.gsap);
+        setGsapLoaded(true);
+      } catch (error) {
+        console.error("Error loading GSAP:", error);
+      }
+    };
+    
+    loadGsap();
+  }, []);
+
+  if (!gsapLoaded || !gsapInstance) {
+    return <MenuItemStatic {...props} />;
+  }
+
+  return <MenuItem {...props} gsap={gsapInstance} />;
+};
+
+// ✅ Update: Pass GSAP as prop
+interface MenuItemWithGSAPProps extends MenuItemProps {
+  gsap: any;
+}
+
+const MenuItem: React.FC<MenuItemWithGSAPProps> = ({ link, text, image, gsap }) => {
   const itemRef = React.useRef<HTMLDivElement>(null);
   const marqueeRef = React.useRef<HTMLDivElement>(null);
   const marqueeInnerRef = React.useRef<HTMLDivElement>(null);
+  const timelineRef = React.useRef<any | null>(null); // ✅ Add: Reference for cleanup
 
   const animationDefaults = { duration: 0.6, ease: "expo" };
 
@@ -47,6 +124,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
   const handleMouseEnter = (ev: React.MouseEvent<HTMLAnchorElement>) => {
     if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current)
       return;
+      
     const rect = itemRef.current.getBoundingClientRect();
     const edge = findClosestEdge(
       ev.clientX - rect.left,
@@ -55,7 +133,14 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
       rect.height
     );
 
+    // ✅ Update: Use gsap from props and store timeline reference
+    if (timelineRef.current) {
+      timelineRef.current.kill();
+    }
+    
     const tl = gsap.timeline({ defaults: animationDefaults });
+    timelineRef.current = tl;
+    
     tl.set(marqueeRef.current, { y: edge === "top" ? "-101%" : "101%" })
       .set(marqueeInnerRef.current, { y: edge === "top" ? "101%" : "-101%" })
       .to([marqueeRef.current, marqueeInnerRef.current], { y: "0%" });
@@ -64,6 +149,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
   const handleMouseLeave = (ev: React.MouseEvent<HTMLAnchorElement>) => {
     if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current)
       return;
+      
     const rect = itemRef.current.getBoundingClientRect();
     const edge = findClosestEdge(
       ev.clientX - rect.left,
@@ -72,12 +158,26 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
       rect.height
     );
 
-    const tl = gsap.timeline({ defaults: animationDefaults }) as TimelineMax;
-    tl.to(marqueeRef.current, { y: edge === "top" ? "-101%" : "101%" }).to(
-      marqueeInnerRef.current,
-      { y: edge === "top" ? "101%" : "-101%" }
-    );
+    // ✅ Update: Use gsap from props and store timeline reference
+    if (timelineRef.current) {
+      timelineRef.current.kill();
+    }
+    
+    const tl = gsap.timeline({ defaults: animationDefaults });
+    timelineRef.current = tl;
+    
+    tl.to(marqueeRef.current, { y: edge === "top" ? "-101%" : "101%" })
+      .to(marqueeInnerRef.current, { y: edge === "top" ? "101%" : "-101%" });
   };
+
+  // ✅ Add: Cleanup GSAP animations on unmount
+  useEffect(() => {
+    return () => {
+      if (timelineRef.current) {
+        timelineRef.current.kill();
+      }
+    };
+  }, []);
 
   const repeatedMarqueeContent = React.useMemo(() => {
     return Array.from({ length: 4 }).map((_, idx) => (
@@ -120,27 +220,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
   );
 };
 
-export default FlowingMenu;
-
-// Note: this is also needed
-// /** @type {import('tailwindcss').Config} */
-// export default {
-//   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
-//   theme: {
-//     extend: {
-//       translate: {
-//         '101': '101%',
-//       },
-//       keyframes: {
-//         marquee: {
-//           'from': { transform: 'translateX(0%)' },
-//           'to': { transform: 'translateX(-50%)' }
-//         }
-//       },
-//       animation: {
-//         marquee: 'marquee 15s linear infinite'
-//       }
-//     }
-//   },
-//   plugins: [],
-// };
+// ✅ Add: Export with dynamic import
+export default dynamic(() => Promise.resolve(FlowingMenuComponent), {
+  ssr: false
+});

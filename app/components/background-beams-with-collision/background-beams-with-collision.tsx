@@ -1,9 +1,23 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion"; // ✅ Fixed: Changed from "motion/react" to "framer-motion"
 import React, { useRef, useState, useEffect } from "react";
+import dynamic from 'next/dynamic'; // ✅ Added: Import dynamic
 
-export const BackgroundBeamsWithCollision = ({
+interface BeamOptions {
+  initialX?: number;
+  translateX?: number;
+  initialY?: number;
+  translateY?: number;
+  rotate?: number;
+  className?: string;
+  duration?: number;
+  delay?: number;
+  repeatDelay?: number;
+}
+
+// ✅ Rename component for dynamic export
+const BackgroundBeamsWithCollisionComponent = ({
   children,
   className,
 }: {
@@ -12,6 +26,12 @@ export const BackgroundBeamsWithCollision = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const parentRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false); // ✅ Added: Client-side detection
+
+  // ✅ Added: Client-side detection
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const beams = [
     {
@@ -66,12 +86,48 @@ export const BackgroundBeamsWithCollision = ({
     },
   ];
 
+  // ✅ Added: SSG/SSR placeholder
+  if (!isMounted) {
+    return (
+      <div
+        className={cn(
+          "h-96 md:h-[40rem] bg-gradient-to-b from-slate-900 to-slate-800 relative flex items-center w-full justify-center overflow-hidden",
+          className
+        )}
+      >
+        {/* Static placeholder beams */}
+        {[1, 2, 3, 4].map((i) => (
+          <div 
+            key={`static-beam-${i}`}
+            className="absolute h-72 w-px bg-gradient-to-t from-indigo-500/20 via-purple-500/20 to-transparent"
+            style={{
+              left: `${25 * i}%`,
+              opacity: 0.7,
+              transform: 'translateY(15%)'
+            }}
+          />
+        ))}
+        
+        {/* Render children in placeholder */}
+        {children}
+        
+        {/* Static bottom container */}
+        <div
+          className="absolute bottom-0 bg-slate-800 w-full inset-x-0 pointer-events-none"
+          style={{
+            boxShadow:
+              "0 0 24px rgba(15, 23, 42, 0.3), 0 1px 1px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(15, 23, 42, 0.2), 0 0 4px rgba(15, 23, 42, 0.3), 0 16px 68px rgba(15, 23, 42, 0.4), 0 1px 0 rgba(255, 255, 255, 0.05) inset",
+          }}
+        ></div>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={parentRef}
       className={cn(
         "h-96 md:h-[40rem] bg-gradient-to-b from-slate-900 to-slate-800 relative flex items-center w-full justify-center overflow-hidden",
-        // h-screen if you want bigger
         className
       )}
     >
@@ -104,17 +160,7 @@ const CollisionMechanism = React.forwardRef<
   {
     containerRef: React.RefObject<HTMLDivElement>;
     parentRef: React.RefObject<HTMLDivElement>;
-    beamOptions?: {
-      initialX?: number;
-      translateX?: number;
-      initialY?: number;
-      translateY?: number;
-      rotate?: number;
-      className?: string;
-      duration?: number;
-      delay?: number;
-      repeatDelay?: number;
-    };
+    beamOptions?: BeamOptions;
   }
 >(({ parentRef, containerRef, beamOptions = {} }, ref) => {
   const beamRef = useRef<HTMLDivElement>(null);
@@ -127,14 +173,24 @@ const CollisionMechanism = React.forwardRef<
   });
   const [beamKey, setBeamKey] = useState(0);
   const [cycleCollisionDetected, setCycleCollisionDetected] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // ✅ Added: Client-side detection
+  const checkIntervalRef = useRef<NodeJS.Timeout | null>(null); // ✅ Added: Reference for cleanup
 
+  // ✅ Added: Client-side detection
   useEffect(() => {
+    setIsMounted(true);
+    
+    // ✅ Modified: Safe check for browser environment
+    if (typeof window === 'undefined') return;
+    
     const checkCollision = () => {
+      // ✅ Modified: Safe check for refs and browser environment
       if (
         beamRef.current &&
         containerRef.current &&
         parentRef.current &&
-        !cycleCollisionDetected
+        !cycleCollisionDetected &&
+        typeof window !== 'undefined'
       ) {
         const beamRect = beamRef.current.getBoundingClientRect();
         const containerRect = containerRef.current.getBoundingClientRect();
@@ -157,23 +213,43 @@ const CollisionMechanism = React.forwardRef<
       }
     };
 
-    const animationInterval = setInterval(checkCollision, 50);
+    // Start checking only when mounted
+    if (isMounted) {
+      checkIntervalRef.current = setInterval(checkCollision, 50);
+    }
 
-    return () => clearInterval(animationInterval);
-  }, [cycleCollisionDetected, containerRef]);
+    // ✅ Modified: Proper cleanup
+    return () => {
+      if (checkIntervalRef.current) {
+        clearInterval(checkIntervalRef.current);
+        checkIntervalRef.current = null;
+      }
+    };
+  }, [cycleCollisionDetected, containerRef, parentRef, isMounted]);
 
   useEffect(() => {
+    if (!isMounted) return; // ✅ Added: Skip if not mounted
+    
     if (collision.detected && collision.coordinates) {
-      setTimeout(() => {
+      const collisionTimeout = setTimeout(() => {
         setCollision({ detected: false, coordinates: null });
         setCycleCollisionDetected(false);
       }, 2000);
 
-      setTimeout(() => {
+      const beamKeyTimeout = setTimeout(() => {
         setBeamKey((prevKey) => prevKey + 1);
       }, 2000);
+
+      // ✅ Added: Proper cleanup
+      return () => {
+        clearTimeout(collisionTimeout);
+        clearTimeout(beamKeyTimeout);
+      };
     }
-  }, [collision]);
+  }, [collision, isMounted]);
+
+  // ✅ Added: Skip rendering if not mounted
+  if (!isMounted) return null;
 
   return (
     <>
@@ -259,5 +335,11 @@ const Explosion = ({ ...props }: React.HTMLProps<HTMLDivElement>) => {
     </div>
   );
 };
+
+// ✅ Added: Export with dynamic import
+export const BackgroundBeamsWithCollision = dynamic(
+  () => Promise.resolve(BackgroundBeamsWithCollisionComponent),
+  { ssr: false }
+);
 
 export default BackgroundBeamsWithCollision;

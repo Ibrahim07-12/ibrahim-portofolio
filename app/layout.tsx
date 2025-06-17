@@ -6,14 +6,14 @@ import ClientLayout from './ClientLayout'; // Kita akan membuat file ini
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://your-website-url.com'),
+  metadataBase: new URL('https://github.com/Ibrahim07-12'),
   title: 'Muhammad Ibrahim Musyaffa | Electronics Engineering Portfolio',
   description: 'Portfolio of Muhammad Ibrahim Musyaffa, a D4 Electronics Engineering student specializing in robotics, AI, IoT, and UAV technology.',
   keywords: 'electronics engineering, robotics, IoT, UAV, Muhammad Ibrahim Musyaffa, engineering portfolio',
   openGraph: {
     title: 'Muhammad Ibrahim Musyaffa | Electronics Engineering Portfolio',
     description: 'Portfolio of Muhammad Ibrahim Musyaffa, a D4 Electronics Engineering student specializing in robotics, AI, IoT, and UAV technology.',
-    url: 'https://your-website-url.com',
+    url: 'https://github.com/Ibrahim07-12',
     siteName: 'Muhammad Ibrahim Portfolio',
     images: [
       {

@@ -1,20 +1,49 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion } from "framer-motion"; // 🛠️ Fix: Import path yang benar
 import { cn } from "@/lib/utils";
-export const ThreeDMarquee = ({
+import { useState, useEffect } from 'react'; // 🛠️ Add: Import hooks
+import dynamic from 'next/dynamic'; // 🛠️ Add: Import dynamic
+
+// 🛠️ Rename: Renamed component to add Component suffix
+const ThreeDMarqueeComponent = ({
   images,
   className,
 }: {
   images: string[];
   className?: string;
 }) => {
+  // 🛠️ Add: Client-side rendering safety
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
   // Split the images array into 4 equal parts
   const chunkSize = Math.ceil(images.length / 4);
   const chunks = Array.from({ length: 4 }, (_, colIndex) => {
     const start = colIndex * chunkSize;
     return images.slice(start, start + chunkSize);
   });
+  
+  // 🛠️ Add: SSG fallback rendering
+  if (!isMounted) {
+    return (
+      <div className={cn(
+        "mx-auto block h-[600px] overflow-hidden rounded-2xl max-sm:h-100",
+        className,
+      )}>
+        <div className="flex size-full items-center justify-center">
+          <div className="text-center p-4">
+            <div className="animate-pulse bg-gray-800 h-64 w-full max-w-2xl rounded-lg mb-4"></div>
+            <p className="text-gray-400">Loading 3D gallery...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div
       className={cn(
@@ -140,3 +169,8 @@ const GridLineVertical = ({
     ></div>
   );
 };
+
+// 🛠️ Add: Export with dynamic import
+export const ThreeDMarquee = dynamic(() => Promise.resolve(ThreeDMarqueeComponent), {
+  ssr: false
+});

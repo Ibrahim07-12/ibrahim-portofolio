@@ -2,12 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-// Run basic build to generate client-side JS
+// Run basic build
 console.log('Building client-side bundles...');
 try {
-  execSync('npx next build', { stdio: 'inherit' });
+  execSync('next build', { stdio: 'inherit' });
 } catch (e) {
-  // Continue even if there are errors
   console.log('Build completed with errors, continuing...');
 }
 
@@ -20,33 +19,65 @@ if (!fs.existsSync('out')) {
 console.log('Copying public files...');
 fs.cpSync('public', 'out', { recursive: true });
 
-// Copy .next/static to out/_next/static
-console.log('Copying static assets...');
-if (fs.existsSync('.next/static')) {
-  fs.mkdirSync('out/_next/static', { recursive: true });
-  fs.cpSync('.next/static', 'out/_next/static', { recursive: true });
+// Copy .next files to out
+console.log('Copying Next.js assets...');
+if (fs.existsSync('.next')) {
+  // Copy the entire .next directory
+  fs.cpSync('.next', 'out/.next', { recursive: true });
+  
+  // Also copy static files to root level for alternative paths
+  if (fs.existsSync('.next/static')) {
+    fs.mkdirSync('out/static', { recursive: true });
+    fs.cpSync('.next/static', 'out/static', { recursive: true });
+  }
 }
 
-// Create a minimal index.html in _next/static
-const minimalHTML = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Muhammad Ibrahim Musyaffa | Portfolio</title>
-  <script src="/_next/static/chunks/webpack.js"></script>
-  <script src="/_next/static/chunks/main.js"></script>
-  <script src="/_next/static/chunks/pages/_app.js"></script>
-  <script src="/_next/static/chunks/pages/index.js"></script>
-  <link rel="stylesheet" href="/_next/static/css/app/layout.css" />
-  <link rel="stylesheet" href="/_next/static/css/app/page.css" />
-</head>
-<body>
-  <div id="__next"></div>
-</body>
-</html>
-`;
+// Create SPA redirect files
+console.log('Creating SPA redirect files...');
+fs.writeFileSync('out/_redirects', '/*    /index.html   200');
 
-fs.writeFileSync('out/_next/static/index.html', minimalHTML);
+fs.writeFileSync('out/netlify.toml', `
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[build.environment]
+  NEXT_USE_NETLIFY_EDGE = "true"
+`);
+
+// Create loader script
+console.log('Creating loader script...');
+fs.writeFileSync('out/app-loader.js', `
+// App loader script
+(function() {
+  console.log('App loader initialized');
+  
+  // Find correct path to scripts
+  function findCorrectPath() {
+    const paths = [
+      './_next/static/chunks/main.js',
+      '/_next/static/chunks/main.js',
+      './static/chunks/main.js'
+    ];
+    
+    for (const path of paths) {
+      const script = document.createElement('script');
+      script.src = path;
+      script.onerror = () => console.log('Failed to load:', path);
+      script.onload = () => console.log('Successfully loaded:', path);
+      document.body.appendChild(script);
+    }
+  }
+  
+  // Run when DOM is loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', findCorrectPath);
+  } else {
+    findCorrectPath();
+  }
+})();
+`);
+
 console.log('Static build completed!');

@@ -2,12 +2,15 @@
 import { useState, useEffect } from 'react';
 import { useLanguage, Language } from '../../context/LanguageContext';
 import { motion } from 'framer-motion';
+import Image from 'next/image'; // ✅ Add: Use Next.js Image component
+import dynamic from 'next/dynamic'; // ✅ Add: Import dynamic
 
 interface LanguageToggleProps {
   className?: string;
 }
 
-const LanguageToggle: React.FC<LanguageToggleProps> = ({ className = "" }) => {
+// ✅ Rename: Component for dynamic export
+const LanguageToggleComponent: React.FC<LanguageToggleProps> = ({ className = "" }) => {
   const { language, setLanguage } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -16,7 +19,30 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({ className = "" }) => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) return null;
+  // ✅ Update: Provide static placeholder during SSG/SSR
+  if (!isMounted) {
+    return (
+      <div
+        className={`relative flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-2 ${className}`}
+        style={{ opacity: 0 }} // Start invisible to prevent flash
+      >
+        <div className="relative flex items-center gap-2 px-2 py-1 z-10">
+          <div className="w-6 h-6 rounded-full bg-gray-200" />
+          <div className="h-4 w-px bg-white/30" />
+          <div className="w-6 h-6 rounded-full bg-gray-200" />
+          <span className="text-xs font-medium text-white ml-1 opacity-0">
+            EN
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Add: Error handling for context
+  if (typeof language === 'undefined' || !setLanguage) {
+    console.error("LanguageToggle: Language context not available");
+    return null;
+  }
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'id' : 'en');
@@ -45,27 +71,43 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({ className = "" }) => {
       
       {/* Flag images - moved to the left side */}
       <div className="relative flex items-center gap-2 px-2 py-1 z-10">
-        <motion.img
-          src="./images/flags/uk-fleg.png"
-          className="w-6 h-6 rounded-full object-cover"
+        <motion.div
+          className="relative w-6 h-6 rounded-full overflow-hidden"
           animate={{
             opacity: language === 'en' ? 1 : 0.5,
             scale: language === 'en' ? 1.1 : 0.9,
           }}
           transition={{ duration: 0.3 }}
-        />
+        >
+          {/* ✅ Update: Replace img with Next.js Image component */}
+          <Image
+            src="/images/flags/uk-fleg.png"
+            alt="English"
+            fill
+            sizes="24px"
+            className="object-cover"
+          />
+        </motion.div>
 
         <div className="h-4 w-px bg-white/30" />
 
-        <motion.img
-          src="./images/flags/id-fleg.png"
-          className="w-6 h-6 rounded-full object-cover"
+        <motion.div
+          className="relative w-6 h-6 rounded-full overflow-hidden"
           animate={{
             opacity: language === 'id' ? 1 : 0.5,
             scale: language === 'id' ? 1.1 : 0.9,
           }}
           transition={{ duration: 0.3 }}
-        />
+        >
+          {/* ✅ Update: Replace img with Next.js Image component */}
+          <Image
+            src="/images/flags/id-fleg.png"
+            alt="Indonesian"
+            fill
+            sizes="24px"
+            className="object-cover"
+          />
+        </motion.div>
         
         <motion.span 
           className="text-xs font-medium text-white ml-1"
@@ -80,4 +122,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({ className = "" }) => {
   );
 };
 
-export default LanguageToggle;
+// ✅ Add: Export with dynamic import
+export default dynamic(() => Promise.resolve(LanguageToggleComponent), {
+  ssr: false
+});

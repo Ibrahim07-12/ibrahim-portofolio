@@ -1,7 +1,9 @@
 "use client";
-import React, { useState } from "react";
-import { motion } from "motion/react";
+import React, { useState, useEffect } from "react"; // ✅ Add: Import useEffect
+import { motion } from "framer-motion"; // ✅ Fix: Import from framer-motion, not motion/react
 import { cn } from "@/lib/utils";
+import Image from "next/image"; // ✅ Add: Import Next.js Image component
+import dynamic from "next/dynamic"; // ✅ Add: Import dynamic
 
 type Card = {
   id: number;
@@ -10,10 +12,17 @@ type Card = {
   thumbnail: string;
 };
 
-export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
+// ✅ Rename: Component for dynamic export
+const LayoutGridComponent = ({ cards }: { cards: Card[] }) => {
   const [selected, setSelected] = useState<Card | null>(null);
   const [lastSelected, setLastSelected] = useState<Card | null>(null);
   const [imageModal, setImageModal] = useState<Card | null>(null);
+  const [isMounted, setIsMounted] = useState(false); // ✅ Add: Client-side detection
+
+  // ✅ Add: Mount detection
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleClick = (card: Card) => {
     setLastSelected(selected);
@@ -33,6 +42,38 @@ export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
   const closeImageModal = () => {
     setImageModal(null);
   };
+
+  // ✅ Add: Static placeholder for SSG/SSR
+  if (!isMounted) {
+    return (
+      <div className="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-1 relative">
+        {cards.map((card, i) => (
+          <div key={i} className={cn(card.className, "")}>
+            <div
+              className={cn(
+                card.className,
+                "relative overflow-hidden backdrop-blur-md border border-white/20 bg-slate-800/60 rounded-xl h-full w-full shadow-lg"
+              )}
+              style={{
+                background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.7) 100%)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              {/* Static Image Placeholder */}
+              <div
+                className="absolute inset-0 h-full w-full bg-cover bg-center"
+                style={{
+                  backgroundImage: `url(${card.thumbnail})`,
+                  filter: 'brightness(0.9) contrast(1.1)',
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     // Remove padding and max-width constraints from the outer container
@@ -96,9 +137,12 @@ export const LayoutGrid = ({ cards }: { cards: Card[] }) => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative rounded-2xl overflow-hidden border border-white/20 shadow-2xl backdrop-blur-sm bg-slate-800/20">
-              <img
+              {/* ✅ Replace: Use Next.js Image component */}
+              <Image
                 src={imageModal.thumbnail}
                 alt="Full size image"
+                width={800}
+                height={600}
                 className="w-full h-auto max-h-full object-contain rounded-2xl"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent pointer-events-none" />
@@ -136,21 +180,27 @@ const ImageComponent = ({
   card: Card; 
   onImageClick: (e: React.MouseEvent, card: Card) => void;
 }) => {
+  // ✅ Update: Use Next.js Image component with proper sizing
   return (
-    <motion.img
-      layoutId={`image-${card.id}-image`}
-      src={card.thumbnail}
-      height="500"
-      width="500"
-      className={cn(
-        "object-cover object-top absolute inset-0 h-full w-full transition-all duration-300 cursor-zoom-in hover:scale-110"
-      )}
-      alt="thumbnail"
-      onClick={(e) => onImageClick(e, card)}
-      style={{
-        filter: 'brightness(0.9) contrast(1.1)',
-      }}
-    />
+    <div className="absolute inset-0 h-full w-full">
+      <motion.div
+        layoutId={`image-${card.id}-image`}
+        className="relative h-full w-full cursor-zoom-in"
+        onClick={(e) => onImageClick(e, card)}
+      >
+        <Image
+          src={card.thumbnail}
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover object-top transition-all duration-300 hover:scale-110"
+          alt="thumbnail"
+          priority={card.id < 6} // Prioritize loading for visible cards
+          style={{
+            filter: 'brightness(0.9) contrast(1.1)',
+          }}
+        />
+      </motion.div>
+    </div>
   );
 };
 
@@ -191,3 +241,8 @@ const SelectedCard = ({ selected }: { selected: Card | null }) => {
     </div>
   );
 };
+
+// ✅ Add: Export with dynamic import
+export const LayoutGrid = dynamic(() => Promise.resolve(LayoutGridComponent), {
+  ssr: false
+});

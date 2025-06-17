@@ -236,47 +236,51 @@ const translations: Record<Language, Record<string, string>> = {
 
 // Provider component
 export const LanguageProvider: React.FC<{children: ReactNode}> = ({ children }) => {
-  // Check if there's a saved language preference in localStorage
+  // Initialize with default language
   const [language, setLanguage] = useState<Language>('en');
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   
-  // Load saved language preference on component mount
   useEffect(() => {
+    setIsClient(true);
+    
+    // Only run browser-specific code after mounting
     if (typeof window !== 'undefined') {
       const savedLanguage = localStorage.getItem('preferred-language') as Language;
       if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'id')) {
         setLanguage(savedLanguage);
       } else {
         // Try to detect browser language
-        const browserLanguage = navigator.language.split('-')[0];
-        if (browserLanguage === 'id') {
-          setLanguage('id');
+        try {
+          const browserLanguage = navigator.language.split('-')[0];
+          if (browserLanguage === 'id') {
+            setLanguage('id');
+          }
+        } catch (e) {
+          // Fallback if navigator is not available
+          console.error("Could not detect browser language", e);
         }
       }
-      setIsLoaded(true);
     }
   }, []);
   
   // Save language preference when it changes
-  const handleSetLanguage = (newLanguage: Language) => {
-    setLanguage(newLanguage);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('preferred-language', newLanguage);
+  useEffect(() => {
+    if (isClient && typeof window !== 'undefined') {
+      localStorage.setItem('preferred-language', language);
     }
-  };
+  }, [language, isClient]);
 
   // Function to get translation for a key
   const t = (key: string): string => {
     return (translations[language] && translations[language][key]) || key;
   };
 
-  // If not loaded yet, provide default context to prevent flicker
-  if (!isLoaded && typeof window !== 'undefined') {
-    return <>{children}</>;
-  }
-
   return (
-    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t }}>
+    <LanguageContext.Provider value={{ 
+      language, 
+      setLanguage, 
+      t 
+    }}>
       {children}
     </LanguageContext.Provider>
   );

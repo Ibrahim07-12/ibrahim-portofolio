@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-
 import React, {
   createContext,
   useState,
@@ -9,12 +8,15 @@ import React, {
   useRef,
   useEffect,
 } from "react";
+import dynamic from 'next/dynamic'; // ✅ Add dynamic import
 
+// Context definition
 const MouseEnterContext = createContext<
   [boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined
 >(undefined);
 
-export const CardContainer = ({
+// Component implementations
+const CardContainerComponent = ({
   children,
   className,
   containerClassName,
@@ -25,6 +27,13 @@ export const CardContainer = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMouseEntered, setIsMouseEntered] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // ✅ Add mounted state
+
+  // ✅ Safely handle mounting
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
@@ -37,7 +46,6 @@ export const CardContainer = ({
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
     setIsMouseEntered(true);
-    if (!containerRef.current) return;
   };
 
   const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -45,6 +53,18 @@ export const CardContainer = ({
     setIsMouseEntered(false);
     containerRef.current.style.transform = `rotateY(0deg) rotateX(0deg)`;
   };
+
+  // ✅ Render a placeholder during SSR/SSG
+  if (!isMounted) {
+    return (
+      <div className={cn("py-20 flex items-center justify-center", containerClassName)}>
+        <div className={cn("flex items-center justify-center relative", className)}>
+          {children}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <MouseEnterContext.Provider value={[isMouseEntered, setIsMouseEntered]}>
       <div
@@ -76,7 +96,8 @@ export const CardContainer = ({
   );
 };
 
-export const CardBody = ({
+// No changes needed for CardBody
+const CardBodyComponent = ({
   children,
   className,
 }: {
@@ -95,7 +116,7 @@ export const CardBody = ({
   );
 };
 
-export const CardItem = ({
+const CardItemComponent = ({
   as: Tag = "div",
   children,
   className,
@@ -120,10 +141,19 @@ export const CardItem = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isMouseEntered] = useMouseEnter();
+  const [isMounted, setIsMounted] = useState(false); // ✅ Add mounted state
+
+  // ✅ Safely handle mounting
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   useEffect(() => {
-    handleAnimations();
-  }, [isMouseEntered]);
+    if (isMounted) { // ✅ Only run after mounting
+      handleAnimations();
+    }
+  }, [isMouseEntered, isMounted]);
 
   const handleAnimations = () => {
     if (!ref.current) return;
@@ -145,11 +175,33 @@ export const CardItem = ({
   );
 };
 
-// Create a hook to use the context
-export const useMouseEnter = () => {
+// ✅ Hook with safety check for SSR
+const useMouseEnterBase = () => {
   const context = useContext(MouseEnterContext);
   if (context === undefined) {
     throw new Error("useMouseEnter must be used within a MouseEnterProvider");
   }
   return context;
 };
+
+// ✅ Safe version of the hook
+export const useMouseEnter = () => {
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  try {
+    const context = useMouseEnterBase();
+    return context;
+  } catch (error) {
+    // During SSR or before mount, return default values
+    return isMounted ? [false, () => {}] as [boolean, React.Dispatch<React.SetStateAction<boolean>>] : [false, () => {}] as [boolean, React.Dispatch<React.SetStateAction<boolean>>];
+  }
+};
+
+// ✅ Export with dynamic import to prevent SSR
+export const CardContainer = dynamic(() => Promise.resolve(CardContainerComponent), { ssr: false });
+export const CardBody = dynamic(() => Promise.resolve(CardBodyComponent), { ssr: false });
+export const CardItem = dynamic(() => Promise.resolve(CardItemComponent), { ssr: false });

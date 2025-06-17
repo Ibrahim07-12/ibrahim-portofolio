@@ -1,5 +1,6 @@
 'use client'
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react'; // ✅ Add: useState, useEffect
+import dynamic from 'next/dynamic'; // ✅ Add: Import dynamic
 
 interface GradientTextProps {
     children: ReactNode;
@@ -9,17 +10,29 @@ interface GradientTextProps {
     showBorder?: boolean;
 }
 
-export default function GradientText({
+// ✅ Rename: Component for dynamic export
+const GradientTextComponent = ({
     children,
     className = "",
     colors = ["#ffaa40", "#9c40ff", "#ffaa40"],
     animationSpeed = 8,
     showBorder = false,
-}: GradientTextProps) {
+}: GradientTextProps) => {
+    const [isMounted, setIsMounted] = useState(false); // ✅ Add: Client-side detection
+    
+    // ✅ Add: Mount detection
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+    
     const gradientStyle = {
         backgroundImage: `linear-gradient(to right, ${colors.join(", ")})`,
         animationDuration: `${animationSpeed}s`,
     };
+
+    // ✅ Note: For this component, we don't actually need a different static version
+    // since the initial render is visually similar. The animation will start after
+    // hydration automatically.
 
     return (
         <div
@@ -27,10 +40,12 @@ export default function GradientText({
         >
             {showBorder && (
                 <div
-                    className="absolute inset-0 bg-cover z-0 pointer-events-none animate-gradient"
+                    className={`absolute inset-0 bg-cover z-0 pointer-events-none ${isMounted ? 'animate-gradient' : ''}`}
                     style={{
                         ...gradientStyle,
                         backgroundSize: "300% 100%",
+                        // ✅ Add: Default background position for non-animated state
+                        backgroundPosition: isMounted ? undefined : '0% 50%'
                     }}
                 >
                     <div
@@ -46,19 +61,29 @@ export default function GradientText({
                 </div>
             )}
             <div
-                className="inline-block relative z-2 text-transparent bg-cover animate-gradient"
+                className={`inline-block relative z-2 text-transparent bg-cover ${isMounted ? 'animate-gradient' : ''}`}
                 style={{
                     ...gradientStyle,
                     backgroundClip: "text",
                     WebkitBackgroundClip: "text",
                     backgroundSize: "300% 100%",
+                    // ✅ Add: Default background position for non-animated state
+                    backgroundPosition: isMounted ? undefined : '0% 50%'
                 }}
             >
                 {children}
             </div>
         </div>
     );
-}
+};
+
+// ✅ Add: Export with dynamic import
+const GradientText = dynamic(() => Promise.resolve(GradientTextComponent), { ssr: true });
+export default GradientText;
+
+// ✅ Note: Alternative approach - this component could also be made into a server component
+// by removing the 'use client' directive and the isMounted state, since the animations
+// will work after hydration automatically.
 
 // tailwind.config.js
 // module.exports = {

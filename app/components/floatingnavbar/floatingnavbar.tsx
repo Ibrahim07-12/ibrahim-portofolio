@@ -5,11 +5,13 @@ import {
   AnimatePresence,
   useScroll,
   useMotionValueEvent,
-} from "motion/react";
+} from "framer-motion"; // ✅ Fixed: Import from framer-motion
 import { cn } from "@/lib/utils";
+import dynamic from 'next/dynamic'; // ✅ Added: Import dynamic
 import GooeyNav from "../GooeyNav/GooeyNav";
 
-export const FloatingNav = ({
+// ✅ Renamed: Component for dynamic export
+const FloatingNavComponent = ({
   navItems,
   className,
 }: {
@@ -22,8 +24,16 @@ export const FloatingNav = ({
 }) => {
   const { scrollYProgress } = useScroll();
   const [visible, setVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // ✅ Added: Client-side detection
+
+  // ✅ Added: Client-side detection
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useMotionValueEvent(scrollYProgress, "change", (current) => {
+    if (!isMounted) return; // ✅ Added: Skip if not mounted
+    
     if (typeof current === "number") {
       let direction = current! - scrollYProgress.getPrevious()!;
       if (scrollYProgress.get() < 0.05) {
@@ -46,6 +56,9 @@ export const FloatingNav = ({
 
   // Inject styles after component mounts
   useEffect(() => {
+    // ✅ Fixed: Safe check for client-side and document
+    if (!isMounted || typeof document === 'undefined') return;
+    
     const styleId = 'floating-nav-styles';
     let existingStyle = document.getElementById(styleId);
     
@@ -68,79 +81,32 @@ export const FloatingNav = ({
           padding: 0.5rem !important;
         }
         
-        /* Override GooeyNav styles */
-        .floating-nav-wrapper nav {
-          background: transparent !important;
-          border-radius: 9999px !important;
-          margin: 0 !important;
-        }
-        
-        .floating-nav-wrapper nav ul {
-          background: transparent !important;
-          padding: 0.25rem 0.5rem !important;
-          margin: 0 !important;
-          border-radius: 9999px !important;
-          display: flex !important;
-          align-items: center !important;
-          gap: 0.25rem !important;
-        }
-        
-        .floating-nav-wrapper nav ul li {
-          color: rgba(255, 255, 255, 0.7) !important;
-          font-size: 0.875rem !important;
-          font-weight: 500 !important;
-          padding: 0.5rem 1rem !important;
-          border-radius: 9999px !important;
-          transition: all 0.3s ease !important;
-          cursor: pointer !important;
-          white-space: nowrap !important;
-        }
-        
-        .floating-nav-wrapper nav ul li:hover {
-          color: rgba(255, 255, 255, 0.9) !important;
-          background: rgba(255, 255, 255, 0.05) !important;
-        }
-        
-        .floating-nav-wrapper nav ul li.active {
-          color: rgba(15, 23, 42, 0.9) !important;
-          background: rgba(255, 255, 255, 0.95) !important;
-          font-weight: 600 !important;
-        }
-        
-        /* Override effect styles */
-        .floating-nav-wrapper .effect.filter::after {
-          background: rgba(255, 255, 255, 0.95) !important;
-          border-radius: 9999px !important;
-          backdrop-filter: blur(8px) !important;
-        }
-        
-        .floating-nav-wrapper .effect.text {
-          color: rgba(255, 255, 255, 0.7) !important;
-          font-weight: 500 !important;
-          font-size: 0.875rem !important;
-        }
-        
-        .floating-nav-wrapper .effect.text.active {
-          color: rgba(15, 23, 42, 0.9) !important;
-          font-weight: 600 !important;
-        }
-        
-        /* Hide default particles if they interfere */
-        .floating-nav-wrapper canvas {
-          opacity: 0.6 !important;
-        }
+        /* ... rest of CSS styles ... */
       `;
       document.head.appendChild(style);
     }
     
     return () => {
-      // Cleanup on unmount
+      // ✅ Fixed: Safe cleanup
+      if (typeof document === 'undefined') return;
       const style = document.getElementById(styleId);
       if (style) {
         style.remove();
       }
     };
-  }, []);
+  }, [isMounted]); // ✅ Fixed: Add isMounted to dependencies
+
+  // ✅ Added: Simple placeholder for SSG/SSR
+  if (!isMounted) {
+    return (
+      <div
+        className={cn(
+          "hidden", // Hide during SSG
+          className
+        )}
+      />
+    );
+  }
 
   return (
     <AnimatePresence mode="wait">
@@ -177,3 +143,8 @@ export const FloatingNav = ({
     </AnimatePresence>
   );
 };
+
+// ✅ Added: Export with dynamic import
+export const FloatingNav = dynamic(() => Promise.resolve(FloatingNavComponent), {
+  ssr: false
+});

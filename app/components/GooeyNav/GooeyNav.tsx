@@ -1,5 +1,6 @@
 'use client'
 import React, { useRef, useEffect, useState } from "react";
+import dynamic from 'next/dynamic'; // ✅ Add: Import dynamic
 
 interface GooeyNavItem {
   label: string;
@@ -17,7 +18,8 @@ export interface GooeyNavProps {
   initialActiveIndex?: number;
 }
 
-const GooeyNav: React.FC<GooeyNavProps> = ({
+// ✅ Rename: Component for dynamic export
+const GooeyNavComponent: React.FC<GooeyNavProps> = ({
   items,
   animationTime = 600,
   particleCount = 15,
@@ -32,7 +34,24 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
   const filterRef = useRef<HTMLSpanElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const [activeIndex, setActiveIndex] = useState<number>(initialActiveIndex);
+  const [isMounted, setIsMounted] = useState(false); // ✅ Add: Client-side detection
+  const particlesTimeoutsRef = useRef<number[]>([]); // ✅ Add: Store timeouts for cleanup
+
+  // ✅ Add: Client-side detection
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      // ✅ Add: Clean up any timeouts on unmount
+      particlesTimeoutsRef.current.forEach(id => {
+        if (typeof window !== 'undefined') {
+          window.clearTimeout(id);
+        }
+      });
+    };
+  }, []);
+
   const noise = (n = 1) => n / 2 - Math.random() * n;
+  
   const getXY = (
     distance: number,
     pointIndex: number,
@@ -42,6 +61,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
       ((360 + noise(8)) / totalPoints) * pointIndex * (Math.PI / 180);
     return [distance * Math.cos(angle), distance * Math.sin(angle)];
   };
+  
   const createParticle = (
     i: number,
     t: number,
@@ -58,16 +78,23 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
       rotate: rotate > 0 ? (rotate + r / 20) * 10 : (rotate - r / 20) * 10,
     };
   };
+  
   const makeParticles = (element: HTMLElement) => {
+    // ✅ Add: Safety check for browser environment
+    if (typeof document === 'undefined') return;
+    
     const d: [number, number] = particleDistances;
     const r = particleR;
     const bubbleTime = animationTime * 2 + timeVariance;
     element.style.setProperty("--time", `${bubbleTime}ms`);
+    
     for (let i = 0; i < particleCount; i++) {
       const t = animationTime * 2 + noise(timeVariance * 2);
       const p = createParticle(i, t, d, r);
       element.classList.remove("active");
-      setTimeout(() => {
+      
+      // ✅ Update: Save timeout ID for cleanup
+      const timeoutId = window.setTimeout(() => {
         const particle = document.createElement("span");
         const point = document.createElement("span");
         particle.classList.add("particle");
@@ -82,17 +109,25 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
         point.classList.add("point");
         particle.appendChild(point);
         element.appendChild(particle);
+        
         requestAnimationFrame(() => {
           element.classList.add("active");
         });
-        setTimeout(() => {
+        
+        // ✅ Update: Save cleanup timeout ID
+        const cleanupId = window.setTimeout(() => {
           try {
             element.removeChild(particle);
           } catch {}
         }, t);
+        
+        particlesTimeoutsRef.current.push(cleanupId);
       }, 30);
+      
+      particlesTimeoutsRef.current.push(timeoutId);
     }
   };
+  
   const updateEffectPosition = (element: HTMLElement) => {
     if (!containerRef.current || !filterRef.current || !textRef.current) return;
     const containerRect = containerRef.current.getBoundingClientRect();
@@ -107,6 +142,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
     Object.assign(textRef.current.style, styles);
     textRef.current.innerText = element.innerText;
   };
+  
   const handleClick = (e: React.MouseEvent<HTMLLIElement>, index: number) => {
     const liEl = e.currentTarget;
     if (activeIndex === index) return;
@@ -125,6 +161,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
       makeParticles(filterRef.current);
     }
   };
+  
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLAnchorElement>,
     index: number
@@ -140,26 +177,59 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
       }
     }
   };
+  
+  // ✅ Update: Safely initialize animation only after mounting
   useEffect(() => {
-    if (!navRef.current || !containerRef.current) return;
+    if (!isMounted || !navRef.current || !containerRef.current) return;
+    
     const activeLi = navRef.current.querySelectorAll("li")[
       activeIndex
     ] as HTMLElement;
+    
     if (activeLi) {
       updateEffectPosition(activeLi);
       textRef.current?.classList.add("active");
     }
+    
+    // ✅ Add: Check for ResizeObserver support
+    if (typeof ResizeObserver === 'undefined') return;
+    
     const resizeObserver = new ResizeObserver(() => {
       const currentActiveLi = navRef.current?.querySelectorAll("li")[
         activeIndex
       ] as HTMLElement;
+      
       if (currentActiveLi) {
         updateEffectPosition(currentActiveLi);
       }
     });
+    
     resizeObserver.observe(containerRef.current);
+    
     return () => resizeObserver.disconnect();
-  }, [activeIndex]);
+  }, [activeIndex, isMounted]);
+
+  // ✅ Add: Simple static placeholder for SSG/SSR
+  if (!isMounted) {
+    return (
+      <div className="relative">
+        <nav className="flex relative">
+          <ul className="flex gap-8 list-none p-0 px-4 m-0 relative z-[3] text-white">
+            {items.map((item, index) => (
+              <li
+                key={index}
+                className={`py-[0.6em] px-[1em] rounded-full relative cursor-pointer ${
+                  index === initialActiveIndex ? "bg-white text-black" : ""
+                }`}
+              >
+                <a href={item.href}>{item.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -338,4 +408,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
   );
 };
 
-export default GooeyNav;
+// ✅ Add: Export with dynamic import
+export default dynamic(() => Promise.resolve(GooeyNavComponent), {
+  ssr: false
+});

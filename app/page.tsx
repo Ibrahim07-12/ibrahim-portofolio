@@ -12,11 +12,9 @@ import SplashCursor from "./components/SplashCursor/SplashCursor";
 import GradientText from "./components/GradientText/GradientText";
 import ScrollVelocity from "./components/ScrollVelocity/ScrollVelocity";
 import { Timeline } from "./components/Timelines/Timeline";
-import PixelCard from "./components/PixelCard/PixelCard";
 import FlowingMenu from "./components/FlowingMenu/FlowingMenu";
 import CardSwap, { Card as SwapCard } from "./components/CardSwap/CardSwap";
 import { BackgroundBoxes } from "./components/BoxesCore/BoxesCore";
-import GlitchText from "./components/GlitchText/GlitchText";
 import Beams from "./components/Beams/Beams";
 import { LampDemo, LampContainer } from "./components/lamp/lamp";
 import { MacbookScroll } from "./components/MacbookScroll/MacbookScroll";
@@ -821,16 +819,6 @@ export default function Home() {
           {/* Education Section */}
           <div id="Education" className="relative group">
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 z-[1]">
-              <PixelCard
-                variant="pink"
-                className="w-full h-full"
-                speed={80}
-                gap={6}
-                colors="#fecdd3,#fda4af,#e11d48"
-                noFocus={false}
-              >
-                <div className="w-full h-full" />
-              </PixelCard>
             </div>
 
             <div className="relative z-[2]">

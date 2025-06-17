@@ -1,5 +1,6 @@
 'use client'
 import React, { useEffect, useState } from "react";
+import dynamic from 'next/dynamic';
 import {
   motion,
   useMotionValue,
@@ -30,32 +31,41 @@ interface RollingGalleryProps {
   spacing?: number;
 }
 
-const RollingGallery: React.FC<RollingGalleryProps> = ({
+const RollingGalleryComponent: React.FC<RollingGalleryProps> = ({
   autoplay = false,
   pauseOnHover = false,
   images = [],
-  spacing = 10, // Reduced spacing to bring images closer
+  spacing = 10,
 }) => {
   const galleryImages = images.length > 0 ? images : IMGS;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const [isScreenSizeSm, setIsScreenSizeSm] = useState<boolean>(
-    typeof window !== 'undefined' ? window.innerWidth <= 640 : false
-  );
+  // ✅ Safe browser API usage with useState initializer
+  const [isScreenSizeSm, setIsScreenSizeSm] = useState<boolean>(false);
   
+  // ✅ Handle browser APIs in useEffect
   useEffect(() => {
+    setMounted(true);
+    
+    // Only run on client-side
     if (typeof window !== 'undefined') {
+      // Initialize screen size
+      setIsScreenSizeSm(window.innerWidth <= 640);
+      
+      // Set up resize listener
       const handleResize = () => setIsScreenSizeSm(window.innerWidth <= 640);
       window.addEventListener("resize", handleResize);
+      
+      // Cleanup
       return () => window.removeEventListener("resize", handleResize);
     }
   }, []);
 
-  // Adjusted cylinder width 
+  // Adjusted cylinder size based on screen
   const cylinderWidth: number = isScreenSizeSm ? 800 : 1400;
   const faceCount: number = galleryImages.length;
-  // Modified calculation for closer spacing
   const faceWidth: number = (cylinderWidth / faceCount) * 1.1 - spacing;
   const radius: number = cylinderWidth / (2 * Math.PI);
 
@@ -79,15 +89,16 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
     });
   };
 
+  // ✅ Safe autoplay setup in useEffect
   useEffect(() => {
-    if (autoplay) {
+    if (mounted && autoplay) {
       const currentAngle = rotation.get();
       startInfiniteSpin(currentAngle);
-    } else {
+    } else if (mounted) {
       controls.stop();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoplay]);
+  }, [autoplay, mounted]);
 
   const handleUpdate = (latest: ResolvedValues) => {
     if (typeof latest.rotateY === "number") {
@@ -142,10 +153,20 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
     setSelectedImage(null);
   };
 
+  // ✅ Show a placeholder during SSR
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center h-[200px] bg-gray-900/50 rounded-lg">
+        <div className="text-white/70">Gallery loading...</div>
+      </div>
+    );
+  }
+
+  // ✅ Only render the full component after mounting on client
   return (
     <>
       <div className="relative h-full w-full overflow-hidden">
-        {/* Enhanced side gradients */}
+        {/* Side gradients */}
         <div
           className="absolute top-0 left-0 h-full w-[60px] z-10"
           style={{
@@ -219,7 +240,7 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
                   {/* Subtle gradient border */}
                   <div className="absolute -inset-0.5 bg-gradient-to-tr from-blue-500/30 via-purple-500/30 to-indigo-500/30 rounded-xl blur-[1px] opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
                   
-                  {/* Larger clickable image with hover effects */}
+                  {/* Clickable image with hover effects */}
                   <div 
                     className="cursor-pointer relative" 
                     onClick={() => handleImageClick(url)}
@@ -264,45 +285,48 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
 
       {/* Fullscreen Image Modal */}
       <AnimatePresence>
-  {selectedImage && (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
-      onClick={closeModal}
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        transition={{ duration: 0.3, type: "spring" }}
-        className="relative max-w-[80vw] max-h-[80vh]"
-        onClick={e => e.stopPropagation()}
-      >
-        <img 
-          src={selectedImage} 
-          alt="Full size" 
-          className="object-contain max-w-[500px] max-h-[50vh] w-auto h-auto rounded-lg"
-          style={{ boxShadow: "0 25px 50px -12px rgba(0,0,0,0.7)" }}
-        />
-        
-        <button
+      {selectedImage && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
           onClick={closeModal}
-          className="absolute -top-12 right-0 p-2 text-white bg-black/50 rounded-full hover:bg-black/70 transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.3, type: "spring" }}
+            className="relative max-w-[80vw] max-h-[80vh]"
+            onClick={e => e.stopPropagation()}
+          >
+            <img 
+              src={selectedImage} 
+              alt="Full size" 
+              className="object-contain max-w-[500px] max-h-[50vh] w-auto h-auto rounded-lg"
+              style={{ boxShadow: "0 25px 50px -12px rgba(0,0,0,0.7)" }}
+            />
+            
+            <button
+              onClick={closeModal}
+              className="absolute -top-12 right-0 p-2 text-white bg-black/50 rounded-full hover:bg-black/70 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
     </>
   );
 };
 
-export default RollingGallery;
+// ✅ Export with dynamic import to avoid SSR
+export default dynamic(() => Promise.resolve(RollingGalleryComponent), {
+  ssr: false
+});

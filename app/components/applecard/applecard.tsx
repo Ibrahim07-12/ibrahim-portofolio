@@ -12,9 +12,10 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { cn } from "../../lib/utils";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion"; // ✅ Perbaikan: Import dari framer-motion
 import Image, { ImageProps } from "next/image";
 import { useOutsideClick } from "@/hooks/use-outside-click";
+import dynamic from 'next/dynamic'; // ✅ Tambahkan: Import dynamic
 
 interface CarouselProps {
   items: JSX.Element[];
@@ -36,13 +37,17 @@ export const CarouselContext = createContext<{
   currentIndex: 0,
 });
 
-export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
+// ✅ Rename component for dynamic export
+const CarouselComponent = ({ items, initialScroll = 0 }: CarouselProps) => {
   const carouselRef = React.useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = React.useState(false);
   const [canScrollRight, setCanScrollRight] = React.useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMounted, setIsMounted] = useState(false); // ✅ Tambahkan: state untuk deteksi client-side
 
   useEffect(() => {
+    setIsMounted(true);
+    
     if (carouselRef.current) {
       carouselRef.current.scrollLeft = initialScroll;
       checkScrollability();
@@ -83,8 +88,27 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
   };
 
   const isMobile = () => {
-    return window && window.innerWidth < 768;
+    // ✅ Perbaikan: Cek ketersediaan window
+    return typeof window !== 'undefined' && window.innerWidth < 768;
   };
+
+  // ✅ Tambahkan: Loading placeholder untuk SSG
+  if (!isMounted) {
+    return (
+      <div className="relative w-full">
+        <div className="flex w-full overflow-x-scroll py-10 md:py-20">
+          <div className="flex flex-row justify-start gap-4 pl-4 mx-auto max-w-7xl">
+            {[1, 2, 3].map((i) => (
+              <div 
+                key={i}
+                className="h-80 w-56 flex-col items-start justify-start overflow-hidden rounded-3xl bg-gray-200 md:h-[40rem] md:w-96 animate-pulse"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <CarouselContext.Provider
@@ -110,16 +134,16 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
           >
             {items.map((item, index) => (
               <motion.div
-  initial={{ opacity: 0, y: 20 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  viewport={{ once: true }}
-  transition={{
-    duration: 0.5,
-    delay: 0.2 * index,
-    ease: "easeOut",
-  }}
-  key={"card" + index}
->
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.2 * index,
+                  ease: "easeOut",
+                }}
+                key={"card" + index}
+              >
                 {item}
               </motion.div>
             ))}
@@ -146,7 +170,8 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
   );
 };
 
-export const Card = ({
+// ✅ Rename component for dynamic export
+const CardComponent = ({
   card,
   index,
   layout = false,
@@ -163,22 +188,29 @@ export const Card = ({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { onCardClose, currentIndex } = useContext(CarouselContext);
+  const [isMounted, setIsMounted] = useState(false); // ✅ Tambahkan: state untuk deteksi client-side
 
   useEffect(() => {
+    setIsMounted(true);
+    
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         handleClose();
       }
     }
 
-    if (open) {
+    // ✅ Perbaikan: Cek ketersediaan document
+    if (open && typeof document !== 'undefined') {
       document.body.style.overflow = "hidden";
-    } else {
+    } else if (typeof document !== 'undefined') {
       document.body.style.overflow = "auto";
     }
 
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    if (typeof window !== 'undefined') {
+      window.addEventListener("keydown", onKeyDown);
+      return () => window.removeEventListener("keydown", onKeyDown);
+    }
+    return undefined;
   }, [open]);
 
   useOutsideClick(containerRef, () => handleClose());
@@ -191,6 +223,15 @@ export const Card = ({
     setOpen(false);
     onCardClose(index);
   };
+
+  // ✅ Tambahkan: Loading placeholder untuk SSG jika diperlukan
+  if (!isMounted) {
+    return (
+      <div 
+        className="relative z-10 flex h-80 w-56 flex-col items-start justify-start overflow-hidden rounded-3xl bg-gray-200 md:h-[40rem] md:w-96 animate-pulse"
+      />
+    );
+  }
 
   return (
     <>
@@ -269,7 +310,8 @@ export const Card = ({
   );
 };
 
-export const BlurImage = ({
+// ✅ Rename component for dynamic export
+const BlurImageComponent = ({
   height,
   width,
   src,
@@ -278,6 +320,22 @@ export const BlurImage = ({
   ...rest
 }: ImageProps) => {
   const [isLoading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false); // ✅ Tambahkan: state untuk deteksi client-side
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
+  // ✅ Tambahkan: Handle SSR/SSG placeholder
+  if (!isMounted) {
+    return (
+      <div 
+        className={cn("h-full w-full bg-gray-300 animate-pulse", className)}
+        style={{width: width ? `${width}px` : '100%', height: height ? `${height}px` : '100%'}}
+      />
+    );
+  }
+  
   return (
     <img
       className={cn(
@@ -297,3 +355,8 @@ export const BlurImage = ({
     />
   );
 };
+
+// ✅ Export dengan dynamic import untuk mencegah SSR issues
+export const Carousel = dynamic(() => Promise.resolve(CarouselComponent), { ssr: false });
+export const Card = dynamic(() => Promise.resolve(CardComponent), { ssr: false });
+export const BlurImage = dynamic(() => Promise.resolve(BlurImageComponent), { ssr: false });

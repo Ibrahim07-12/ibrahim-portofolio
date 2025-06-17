@@ -1,9 +1,9 @@
 "use client";
 
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
-import { motion, AnimatePresence } from "motion/react";
-
+import { motion, AnimatePresence } from "framer-motion"; // 🛠️ Perbaikan: Import dari framer-motion, bukan motion/react
 import { useEffect, useState } from "react";
+import dynamic from 'next/dynamic'; // 🛠️ Tambahkan: Import dynamic
 
 type Testimonial = {
   quote: string;
@@ -11,7 +11,8 @@ type Testimonial = {
   designation: string;
   src: string;
 };
-export const AnimatedTestimonials = ({
+
+const AnimatedTestimonialsComponent = ({
   testimonials,
   autoplay = false,
 }: {
@@ -19,6 +20,7 @@ export const AnimatedTestimonials = ({
   autoplay?: boolean;
 }) => {
   const [active, setActive] = useState(0);
+  const [isMounted, setIsMounted] = useState(false); // 🛠️ Tambahkan: State untuk deteksi client-side
 
   const handleNext = () => {
     setActive((prev) => (prev + 1) % testimonials.length);
@@ -32,16 +34,51 @@ export const AnimatedTestimonials = ({
     return index === active;
   };
 
+  // 🛠️ Tambahkan: useEffect untuk mendeteksi client-side
   useEffect(() => {
-    if (autoplay) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (autoplay && isMounted) { // 🛠️ Perbaikan: Cek isMounted
       const interval = setInterval(handleNext, 5000);
       return () => clearInterval(interval);
     }
-  }, [autoplay]);
+  }, [autoplay, isMounted]); // 🛠️ Perbaikan: Tambahkan isMounted ke dependencies
 
   const randomRotateY = () => {
     return Math.floor(Math.random() * 21) - 10;
   };
+
+  // 🛠️ Tambahkan: Render loading skeleton untuk SSG
+  if (!isMounted) {
+    return (
+      <div className="mx-auto max-w-sm px-4 py-20 font-sans antialiased md:max-w-4xl md:px-8 lg:px-12">
+        <div className="relative grid grid-cols-1 gap-20 md:grid-cols-2">
+          <div>
+            <div className="relative h-80 w-full bg-gray-200 dark:bg-neutral-800 rounded-3xl animate-pulse"></div>
+          </div>
+          <div className="flex flex-col justify-between py-4">
+            <div>
+              <div className="h-7 w-40 bg-gray-200 dark:bg-neutral-800 rounded-lg animate-pulse mb-2"></div>
+              <div className="h-4 w-24 bg-gray-100 dark:bg-neutral-700 rounded-lg animate-pulse"></div>
+              <div className="mt-8 space-y-2">
+                <div className="h-4 w-full bg-gray-100 dark:bg-neutral-700 rounded-lg animate-pulse"></div>
+                <div className="h-4 w-5/6 bg-gray-100 dark:bg-neutral-700 rounded-lg animate-pulse"></div>
+                <div className="h-4 w-4/6 bg-gray-100 dark:bg-neutral-700 rounded-lg animate-pulse"></div>
+              </div>
+            </div>
+            <div className="flex gap-4 pt-12 md:pt-0">
+              <div className="h-7 w-7 bg-gray-100 dark:bg-neutral-800 rounded-full"></div>
+              <div className="h-7 w-7 bg-gray-100 dark:bg-neutral-800 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Original component rendering
   return (
     <div className="mx-auto max-w-sm px-4 py-20 font-sans antialiased md:max-w-4xl md:px-8 lg:px-12">
       <div className="relative grid grid-cols-1 gap-20 md:grid-cols-2">
@@ -163,3 +200,8 @@ export const AnimatedTestimonials = ({
     </div>
   );
 };
+
+// 🛠️ Tambahkan: Export dengan dynamic import untuk mencegah SSR
+export const AnimatedTestimonials = dynamic(() => Promise.resolve(AnimatedTestimonialsComponent), { 
+  ssr: false 
+});

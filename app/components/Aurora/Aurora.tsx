@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react"; // ✅ Add useState import
+import dynamic from 'next/dynamic'; // ✅ Add dynamic import
 import { Renderer, Program, Mesh, Color, Triangle } from "ogl";
 
+// GLSL Shaders - No change needed
 const VERT = `#version 300 es
 in vec2 position;
 void main() {
