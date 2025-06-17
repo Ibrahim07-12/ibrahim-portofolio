@@ -3,6 +3,12 @@ const nextConfig = {
   output: 'export',
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   typescript: {
     ignoreBuildErrors: true,
@@ -31,6 +37,5 @@ const nextConfig = {
   },
 };
 
-export default {
-  output: 'export',
-};
+// Ubah 'module.exports' menjadi 'export default' untuk file .mjs
+export default nextConfig;
