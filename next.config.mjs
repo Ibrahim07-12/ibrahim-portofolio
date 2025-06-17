@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // output: 'export', // ✅ Dihapus untuk mengaktifkan mode server
+
+  // Konfigurasi untuk mengizinkan gambar dari host eksternal
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -10,16 +11,22 @@ const nextConfig = {
       },
     ],
   },
+  
+  // Membantu dengan error TypeScript selama build
   typescript: {
     ignoreBuildErrors: true,
   },
+  
+  // Mengabaikan error ESLint selama build
   eslint: {
     ignoreDuringBuilds: true,
   },
+  
   experimental: {
     optimizePackageImports: [],
   },
 
+  // Handler untuk file media
   webpack(config) {
     config.module.rules.push({
       test: /\.(mp4|webm|ogg|mov)$/,
@@ -37,5 +44,4 @@ const nextConfig = {
   },
 };
 
-// Ubah 'module.exports' menjadi 'export default' untuk file .mjs
-export default nextConfig;
+module.exports = nextConfig;
