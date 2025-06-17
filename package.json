@@ -3,10 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "node build-static.js",
+    "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "dev": "next dev"
   },
   "dependencies": {
     "@radix-ui/react-hover-card": "^1.1.14",

@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: 'export', // ✅ Dihapus untuk mengaktifkan mode server
-
   // Konfigurasi untuk mengizinkan gambar dari host eksternal
   images: {
     remotePatterns: [
