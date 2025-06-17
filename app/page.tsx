@@ -35,6 +35,7 @@ import { AudioPlayer } from "./components/AudioPlayer/AudioPlayer";
 import { BackgroundGradient } from "./components/backgroundgradient/backgroundgradient";
 import { BackgroundBeamsWithCollision } from "./components/background-beams-with-collision/background-beams-with-collision";
 import RollingGallery from "./components/RollingGallery/RollingGallery";
+import LanguageToggle from "./components/LanguageToggle/LanguageToggle";
 import {
   IconHome,
   IconMessage,
@@ -224,25 +225,25 @@ export default function Home() {
           id: 1,
           content: null, // Hapus content text
           className: "md:col-span-2",
-          thumbnail: "./images/experience/KRTI/fwefg.jpeg",
+          thumbnail: "/images/experience/KRTI/fwefg.jpeg",
         },
         {
           id: 2,
           content: null, // Hapus content text
           className: "col-span-1",
-          thumbnail: "./images/experience/KRTI/krti-2.jpeg",
+          thumbnail: "/images/experience/KRTI/krti-2.jpeg",
         },
         {
           id: 3,
           content: null, // Hapus content text
           className: "col-span-1",
-          thumbnail: "./images/experience/KRTI/krti-3.jpeg",
+          thumbnail: "/images/experience/KRTI/krti-3.jpeg",
         },
         {
           id: 4,
           content: null, // Hapus content text
           className: "md:col-span-2",
-          thumbnail: "./images/experience/KRTI/krti-trophy.jpg",
+          thumbnail: "/images/experience/KRTI/krti-trophy.jpg",
         },
       ],
     },
@@ -255,25 +256,25 @@ export default function Home() {
           id: 1,
           content: null, // Hapus content text
           className: "md:col-span-2",
-          thumbnail: "./images/experience/polines/polines-1.jpeg",
+          thumbnail: "/images/experience/polines/polines-1.jpeg",
         },
         {
           id: 2,
           content: null, // Hapus content text
           className: "col-span-1",
-          thumbnail: "./images/experience/polines/polines-2.jpeg",
+          thumbnail: "/images/experience/polines/polines-2.jpeg",
         },
         {
           id: 3,
           content: null, // Hapus content text
           className: "col-span-1",
-          thumbnail: "./images/experience/polines/polines-3.jpeg",
+          thumbnail: "/images/experience/polines/polines-3.jpeg",
         },
         {
           id: 4,
           content: null, // Hapus content text
           className: "md:col-span-2",
-          thumbnail: "./images/experience/polines/RETANK-1_page-0001 (1).jpg",
+          thumbnail: "/images/experience/polines/RETANK-1_page-0001 (1).jpg",
         },
       ],
     },
@@ -287,25 +288,25 @@ export default function Home() {
           id: 1,
           content: null, // Hapus content text
           className: "md:col-span-2",
-          thumbnail: "./images/experience/lktin/lkti-1.jpg",
+          thumbnail: "/images/experience/lktin/lkti-1.jpg",
         },
         {
           id: 2,
           content: null, // Hapus content text
           className: "col-span-1",
-          thumbnail: "./images/experience/lktin/lkti-2.jpeg",
+          thumbnail: "/images/experience/lktin/lkti-2.jpeg",
         },
         {
           id: 3,
           content: null, // Hapus content text
           className: "col-span-1",
-          thumbnail: "./images/experience/lktin/traffic-light-1.jpeg",
+          thumbnail: "/images/experience/lktin/traffic-light-1.jpeg",
         },
         {
           id: 4,
           content: null, // Hapus content text
           className: "md:col-span-2",
-          thumbnail: "./images/experience/lktin/traffic-light-2.jpeg",
+          thumbnail: "/images/experience/lktin/traffic-light-2.jpeg",
         },
       ],
     },
@@ -319,7 +320,7 @@ export default function Home() {
           content: null, // Hapus content text
           className: "md:col-span-2",
           thumbnail:
-            "./images/experience/mapres/Sertifikat Penghargaan Mahasiswa Berprestasi di bidang penalaran_page-0001 (1).jpg",
+            "/images/experience/mapres/Sertifikat Penghargaan Mahasiswa Berprestasi di bidang penalaran_page-0001 (1).jpg",
         },
       ],
     },
@@ -703,6 +704,9 @@ export default function Home() {
             id="dashboard"
             className="relative bg-[#1F2937] h-screen overflow-hidden"
           >
+            <div className="absolute top-6 right-6 z-50">
+    <LanguageToggle />
+  </div>
             {/* 3D Marquee sebagai Background penuh */}
             <div className="absolute inset-0 w-[120%] h-full -left-[20%]">
               {" "}
