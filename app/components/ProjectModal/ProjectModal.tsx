@@ -9,8 +9,10 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { ProjectData } from "../../data/projects";
+// Import useLanguage
+import { useLanguage } from "../../context/LanguageContext";
 
-// Add this helper function to detect video files
+// Add helper function to detect video files
 const isVideo = (file: string) => {
   return file.toLowerCase().endsWith('.mp4') || file.toLowerCase().endsWith('.webm') || 
          file.toLowerCase().endsWith('.mov') || file.toLowerCase().endsWith('.avi');
@@ -27,6 +29,28 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
   onClose,
   projectData,
 }) => {
+  // Use language hook
+  const { t } = useLanguage();
+
+  // Function to get translated field based on project slug
+  const getTranslatedField = (slug: string, field: string) => {
+    // Convert slug to a valid key format (e.g., smart-traffic-light -> traffic)
+    let slugKey = '';
+    if (slug === 'smart-traffic-light') slugKey = 'traffic';
+    else if (slug === 'robotics-project') slugKey = 'robotics';
+    else if (slug === 'home-automation-project') slugKey = 'home';
+    else if (slug === 'automatic-door-project') slugKey = 'door';
+    else if (slug === 'gas-detection-system') slugKey = 'gas';
+    else if (slug === 'face-recognition-system') slugKey = 'face';
+    else slugKey = slug.replace(/-/g, '_');
+    
+    const translationKey = `project_${slugKey}_${field}`;
+    const translation = t(translationKey);
+    
+    // Return original content if translation not found
+    return translation === translationKey ? projectData[field as keyof ProjectData] : translation;
+  };
+
   if (!projectData) {
     console.log("❌ ProjectModal: No project data provided");
     return null;
@@ -85,17 +109,19 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
                   <div className="flex items-center gap-3 mb-2">
                     <span className="px-3 py-1 bg-blue-600 text-white text-sm rounded-full">
-                      {projectData.category}
+                      {getTranslatedField(projectData.slug || '', 'category')}
                     </span>
                     <span className="px-3 py-1 bg-green-600 text-white text-sm rounded-full flex items-center gap-1">
                       <CheckCircle className="w-3 h-3" />
-                      {projectData.status}
+                      {t(projectData.status === "Completed" ? "project_completed" : "project_in_progress")}
                     </span>
                   </div>
                   <h2 className="text-3xl font-bold text-white mb-2">
-                    {projectData.title}
+                    {getTranslatedField(projectData.slug || '', 'title')}
                   </h2>
-                  <p className="text-gray-300">{projectData.description}</p>
+                  <p className="text-gray-300">
+                    {getTranslatedField(projectData.slug || '', 'description')}
+                  </p>
                 </div>
               </div>
 
@@ -106,13 +132,13 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                   <div className="flex items-center gap-2 text-gray-300">
                     <Calendar className="w-4 h-4" />
                     <span className="text-sm">
-                      Duration: {projectData.duration}
+                      {t("project_duration")}: {projectData.duration}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-300">
                     <Users className="w-4 h-4" />
                     <span className="text-sm">
-                      Team: {projectData.teamSize}
+                      {t("project_team_size")}: {projectData.teamSize}
                     </span>
                   </div>
                   <div className="flex gap-2">
@@ -124,7 +150,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                         className="flex items-center gap-1 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"
                       >
                         <Github className="w-4 h-4" />
-                        <span className="text-sm">Code</span>
+                        <span className="text-sm">{t("project_code")}</span>
                       </a>
                     )}
                     {projectData.liveUrl && (
@@ -135,7 +161,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                         className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
                       >
                         <ExternalLink className="w-4 h-4" />
-                        <span className="text-sm">Live</span>
+                        <span className="text-sm">{t("project_live")}</span>
                       </a>
                     )}
                   </div>
@@ -144,17 +170,17 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 {/* Description */}
                 <div className="mb-6">
                   <h3 className="text-xl font-semibold text-white mb-3">
-                    About This Project
+                    {t("project_about")}
                   </h3>
                   <p className="text-gray-300 leading-relaxed">
-                    {projectData.longDescription}
+                    {getTranslatedField(projectData.slug || '', 'longDescription')}
                   </p>
                 </div>
 
                 {/* Technologies */}
                 <div className="mb-6">
                   <h3 className="text-xl font-semibold text-white mb-3">
-                    Technologies Used
+                    {t("project_technologies")}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {projectData.technologies.map((tech, index) => (
@@ -171,7 +197,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 {/* Features */}
                 <div className="mb-6">
                   <h3 className="text-xl font-semibold text-white mb-3">
-                    Key Features
+                    {t("project_features")}
                   </h3>
                   <ul className="space-y-2">
                     {projectData.features.map((feature, index) => (
@@ -186,11 +212,11 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                   </ul>
                 </div>
 
-                {/* My Tasks - NEW SECTION */}
+                {/* My Tasks - translated tasks */}
                 {projectData.myTasks && projectData.myTasks.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-xl font-semibold text-white mb-3">
-                      My Contributions
+                      {t("project_my_tasks")}
                     </h3>
                     <ul className="space-y-2">
                       {projectData.myTasks.map((task, index) => (
@@ -199,7 +225,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                           className="flex items-start gap-2 text-gray-300"
                         >
                           <CheckCircle className="w-4 h-4 text-blue-500 flex-shrink-0 mt-1" />
-                          <span>{task}</span>
+                          <span>
+                            {getTranslatedField(projectData.slug || '', `myTask${index + 1}`)}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -210,7 +238,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 {projectData.images && projectData.images.length > 1 && (
                   <div>
                     <h3 className="text-xl font-semibold text-white mb-3">
-                      Project Gallery
+                      {t("project_gallery")}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {projectData.images.slice(1).map((media, index) => (

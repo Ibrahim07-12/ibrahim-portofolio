@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { MotionValue, motion, useScroll, useTransform } from "motion/react";
 import { cn } from "../../lib/utils";
-
+import { useLanguage } from "../../context/LanguageContext";
 
 import {
   IconBrightnessDown,
@@ -150,6 +150,7 @@ export const Lid = ({
   cardItems?: any[];
   onCardClick?: (slug: string) => void; // 🔧 NEW: Callback type
 }) => {
+  const { t } = useLanguage();
   // Buat transform untuk ukuran layar yang keluar berdasarkan rotasi
   const screenWidth = useTransform(rotate, [-28, 0], ["32rem", "30rem"]);
   const screenHeight = useTransform(rotate, [-28, 0], ["24rem", "23rem"]);
@@ -272,7 +273,7 @@ export const Lid = ({
                 </h3>
                 <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0">
                   <p className="text-gray-200 text-xs bg-black/30 backdrop-blur-sm rounded px-1 py-0.5 border border-gray-600/50"> {/* 🔧 Kurangi text size dan padding */}
-                    📋 View details
+                    📋 {t("viewDetails")}
                   </p>
                 </div>
               </div>

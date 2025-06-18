@@ -8,6 +8,7 @@ import {
   motion,
 } from "motion/react";
 import React, { useEffect, useRef, useState } from "react";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface TimelineEntry {
   title: string;
@@ -15,6 +16,7 @@ interface TimelineEntry {
 }
 
 export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
+   const { t } = useLanguage();
   const ref = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
@@ -58,7 +60,7 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
       <div className="relative z-[3]">
         <div className="max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10 z-30">
           <h2 className="text-3xl md:text-6xl mb-4 font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-transparent bg-clip-text">
-            Education
+            {t("Education")}
           </h2>
         </div>
 

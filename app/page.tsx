@@ -36,6 +36,7 @@ import { BackgroundGradient } from "./components/backgroundgradient/backgroundgr
 import { BackgroundBeamsWithCollision } from "./components/background-beams-with-collision/background-beams-with-collision";
 import RollingGallery from "./components/RollingGallery/RollingGallery";
 import LanguageToggle from "./components/LanguageToggle/LanguageToggle";
+import { useLanguage } from "./context/LanguageContext";
 import {
   IconHome,
   IconMessage,
@@ -48,6 +49,7 @@ import {
   IconBook,
 } from "@tabler/icons-react";
 export default function Home() {
+  const { t } = useLanguage();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -98,46 +100,46 @@ export default function Home() {
   };
   const navItems = [
     {
-      name: "Dashboard",
+      name: t("Dashboard"),
       link: "#dashboard",
       icon: <IconHome className="h-4 w-4 text-neutral-500 dark:text-white" />,
     },
     {
-      name: "Education",
+      name: t("Education"),
       link: "#Education",
       icon: <IconBook className="h-4 w-4 text-neutral-500 dark:text-white" />,
     },
     {
-      name: "Work",
+      name: t("Work"),
       link: "#work",
       icon: <IconBook className="h-4 w-4 text-neutral-500 dark:text-white" />,
     },
     {
-      name: "Organizational",
+      name: t("Organizational"),
       link: "#organizational",
       icon: (
         <IconBuilding className="h-4 w-4 text-neutral-500 dark:text-white" />
       ),
     },
     {
-      name: "Projects",
+      name: t("Projects"),
       link: "#projects",
       icon: <IconCode className="h-4 w-4 text-neutral-500 dark:text-white" />,
     },
     {
-      name: "Certifications",
+      name: t("Certifications"),
       link: "#certifications",
       icon: (
         <IconCertificate className="h-4 w-4 text-neutral-500 dark:text-white" />
       ),
     },
     {
-      name: "Achievements",
+      name: t("Achievements"),
       link: "#achievements",
       icon: <IconTrophy className="h-4 w-4 text-neutral-500 dark:text-white" />,
     },
     {
-      name: "Contact",
+      name: t("Contact"),
       link: "#contact",
       icon: (
         <IconMessage className="h-4 w-4 text-neutral-500 dark:text-white" />
@@ -146,68 +148,57 @@ export default function Home() {
   ];
   const testimonials = [
     {
-      quote:
-        "Essential suite for creating documents, spreadsheets, and presentations in a professional setting.",
+      quote: t("testimonial1_quote"),
       name: "Microsoft Office",
       src: "./images/logo/ms-office.png",
     },
     {
-      quote:
-        "A lightweight and flexible code editor with extensive language and extension support.",
+      quote: t("testimonial2_quote"),
       name: "Visual Studio Code",
       src: "./images/logo/vscode.png",
     },
     {
-      quote:
-        "An interactive web-based platform for coding, data analysis, and machine learning in Python.",
+      quote: t("testimonial3_quote"),
       name: "Jupyter Notebook",
       src: "./images/logo/jupyter.png",
     },
     {
-      quote:
-        "A simple and classic IDE for C/C++ programming, ideal for learning and basic development.",
+      quote: t("testimonial4_quote"),
       name: "Dev C++",
       src: "./images/logo/dev-cpp.png",
     },
     {
-      quote:
-        "A simulation tool for electronic circuits and microcontrollers, used to test designs virtually.",
+      quote: t("testimonial5_quote"),
       name: "Proteus",
       src: "./images/logo/proteus.png",
     },
     {
-      quote:
-        "An open-source development environment for writing and uploading code to Arduino boards using simplified C/C++.",
+      quote: t("testimonial6_quote"),
       name: "Arduino IDE",
       src: "./images/logo/arduino.png",
     },
     {
-      quote:
-        "A PCB design software from Autodesk, used for creating and testing electronic circuit layouts.",
+      quote: t("testimonial7_quote"),
       name: "EAGLE",
       src: "./images/logo/eagle.png",
     },
     {
-      quote:
-        "A powerful network simulator for designing, configuring, and visualizing network topologies.",
+      quote: t("testimonial8_quote"),
       name: "Cisco Packet Tracer",
       src: "./images/logo/cisco.png",
     },
     {
-      quote:
-        "A programming tool for Omron PLCs, commonly used in industrial automation systems.",
+      quote: t("testimonial9_quote"),
       name: "CX Programmer",
       src: "./images/logo/cx-programmer.png",
     },
     {
-      quote:
-        "A numerical computing environment used for simulations, mathematical modeling, and data processing.",
+      quote: t("testimonial10_quote"),
       name: "Matlab",
       src: "./images/logo/matlab.png",
     },
     {
-      quote:
-        "Simulation software for pneumatic, hydraulic, and electrical systems, widely used in automation.",
+      quote: t("testimonial11_quote"),
       name: "FluidSIM",
       designation: "",
       src: "./images/logo/fluidsim.png",
@@ -216,10 +207,8 @@ export default function Home() {
   // Update content untuk menghilangkan text content saat image diklik
   const content = [
     {
-      title:
-        "Excellent Team Award in the 2024 National Level Indonesian Flying Robot Contest: Racing Planet Division",
-      description:
-        "The Indonesian Flying Robot Contest is a competition organized by the Ministry of Education, Culture, Research, and Technology (Kemendikbudristek) through the Indonesian Talent Development Center and National Achievement Center. This prestigious competition aims to enhance students' creativity and skills in aviation technology.",
+      title: t("achievement1_title"),
+      description: t("achievement1_description"),
       layoutGridCards: [
         {
           id: 1,
@@ -248,9 +237,8 @@ export default function Home() {
       ],
     },
     {
-      title: "Participation in the Polines Robot Competition 2024",
-      description:
-        "Polines Robotic Contest (PRC) is a national level robotics competition held by the Student Activity Unit for Science Development of Semarang State Polytechnic.",
+      title: t("achievement2_title"),
+      description: t("achievement2_description"),
       layoutGridCards: [
         {
           id: 1,
@@ -279,10 +267,8 @@ export default function Home() {
       ],
     },
     {
-      title:
-        "Finalist Race Work Write National Scientific Electrolympic UPNVJ 2024",
-      description:
-        "Electrolympic 2024 is event competition open in the field academic and non- academic are one of them is Work write scientific that canfollowed by all student active with the theme Utilization Technology For Lifestyle Sustainable in the Era of Society 5.0.",
+      title: t("achievement3_title"),
+      description: t("achievement3_description"),
       layoutGridCards: [
         {
           id: 1,
@@ -311,8 +297,7 @@ export default function Home() {
       ],
     },
     {
-      title:
-        "Outstanding Student Award in Academic Reasoning at Yogyakarta State University 2025",
+      title: t("achievement4_title"),
       description: "",
       layoutGridCards: [
         {
@@ -384,86 +369,86 @@ export default function Home() {
   const cardData = [
     {
       src: "./images/project/Lampu Lalu Lintas Cerdas Berbasis YOLO/project-traffic-light.jpeg", // Consider updating this image
-      title: "Smart Traffic Light System",
-      category: "Computer Vision & IoT",
+      title: t("project_smart_traffic_title"), // Use t() for translation"Smart Traffic Light System",
+      category: t("project_smart_traffic_category"), // Use t() for translation"Computer Vision & IoT",
       slug: "smart-traffic-light",
     },
     {
       src: "./images/project/Line Follower/project-line-follower.jpg",
-      title: "Robotics",
-      category: "Robotics",
+      title: t("project_robotics1_title"), // Use t() for translation"Robotics",
+      category: t("project_robotics1_category"), // Use t() for translation"Robotics",
       slug: "robotics-project",
     },
     {
       src: "./images/project/Sistem Otomasi Rumah Berbasis Mikrokontroler/project-home-automation.jpeg",
-      title: "Home Automation System",
-      category: "IoT",
+      title: t("project_home_automation_title"), // Use t() for translation"Home Automation System",
+      category: t("project_home_automation_category"), // Use t() for translation"IoT",
       slug: "home-automation-project",
     },
     {
       src: "./images/project/door automation/door-auto-1.jpeg",
-      title: "Automatic Door System",
-      category: "Smart Systems",
+      title: t("project_automatic_door_title"), // Use t() for translation"Automatic Door System",
+      category: t("project_automatic_door_category"), // Use t() for translation"Smart Systems",
       slug: "automatic-door-project",
     },
     {
       src: "./images/project/sistem deteksi gas/project-gas-detection.jpeg", // Consider updating this image
-      title: "Gas Detection System",
-      category: "Industrial Automation",
+      title: t("project_gas_detection_title"), // Use t() for translation"Gas Detection System",
+      category: t("project_gas_detection_category"), // Use t() for translation"Industrial Automation",
       slug: "gas-detection-system",
     },
     {
       src: "./images/project/Sistem Deteksi dan Pengenalan Wajah dengan Face Recognition dan YuNet/project-self-balancing.jpg", // Consider updating this image
-      title: "Face Recognition System",
-      category: "Computer Vision",
+      title: t("project_face_recognition_title"), // Use t() for translation"Face Recognition System",
+      category: t("project_face_recognition_category"), // Use t() for translation"Computer Vision",
       slug: "face-recognition-system",
     },
   ];
   const demoItems = [
     {
       link: "#",
-      text: "Organizational experience",
+      text: t("demoItem_organizational"),
       image: "./images/menu/organi.jpeg",
     },
   ];
   const demoItems1 = [
     {
       link: "#",
-      text: "My Projects",
+      text: t("demoItem_projects"),
       image: "./images/menu/project.jpeg",
     },
   ];
   const demoItems2 = [
     {
       link: "#",
-      text: "Certifications",
+      text: t("demoItem_certifications"),
       image: "./images/menu/certif.jpeg",
     },
   ];
   const demoItems3 = [
     {
       link: "#",
-      text: "Achievements",
+      text: t("demoItem_achievements"),
       image: "./images/menu/achieve.jpeg",
     },
   ];
   const demoItems4 = [
     {
       link: "#",
-      text: "Tools Skill",
+      text: t("demoItem_tools"),
       image: "./images/menu/tools.jpeg",
     },
   ];
-   const demoItems5 = [
+  const demoItems5 = [
     {
       link: "#",
-      text: "Work Experience",
+      text: t("demoItem_work"),
       image: "./images/menu/work.jpeg",
     },
   ];
   const data = [
     {
-      title: "2022 - Present",
+      title: t("timeline_2022_title"),
       content: (
         <div className="flex flex-col lg:flex-row items-center gap-8">
           {/* Left side: Enhanced Text Content with Cards */}
@@ -476,11 +461,9 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    D4 Teknik Elektronika
+                    {t("edu_d4_title")}
                   </h3>
-                  <p className="text-sm text-gray-300">
-                    Yogyakarta State University
-                  </p>
+                  <p className="text-sm text-gray-300">{t("edu_uny_name")}</p>
                 </div>
               </div>
 
@@ -489,18 +472,16 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   <span className="text-sm text-green-400 font-semibold">
-                    Currently Studying
+                    {t("edu_status_current")}
                   </span>
                 </div>
                 <span className="text-sm text-blue-400 font-medium">
-                  2022 - Present
+                  {t("timeline_2022_title")}
                 </span>
               </div>
 
               <p className="text-gray-300 text-sm leading-relaxed">
-                Focusing on advanced automation, IoT systems, robotics, and
-                intelligent control technologies with strong emphasis on
-                practical implementation.
+                {t("edu_uny_description")}
               </p>
             </div>
 
@@ -509,15 +490,13 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="text-lg font-semibold text-white mb-1">
-                    Academic Excellence
+                    {t("edu_academic_excellence")}
                   </h4>
-                  <p className="text-gray-300 text-sm">
-                    Cumulative GPA 5th Semester
-                  </p>
+                  <p className="text-gray-300 text-sm">{t("edu_gpa_label")}</p>
                 </div>
                 <div className="text-right">
                   <div className="text-3xl font-bold text-green-400 group-hover:scale-110 transition-transform duration-300">
-                    3.7
+                    {t("edu_gpa_value")}
                   </div>
                   <div className="text-xs text-gray-300">/ 4.0</div>
                 </div>
@@ -528,22 +507,22 @@ export default function Home() {
             <div className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 backdrop-blur-xl rounded-xl p-5 border border-purple-500/30 hover:border-purple-400/50 transition-all duration-500">
               <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <span className="text-xl">📚</span>
-                Key Subjects
+                {t("edu_key_subjects")}
               </h4>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  "Network Computers",
-                  "IoT Systems",
-                  "Robotics",
-                  "Smart Control",
-                  "Telemetry",
-                  "Artificial Intelligence",
-                  "PLC",
-                  "Microcontroller",
-                  "Microprocessor",
-                  "Power Electronics",
-                  "Instrumentation",
-                  "Automation",
+                  t("subject_network"),
+                  t("subject_iot"),
+                  t("subject_robotics"),
+                  t("subject_smart_control"),
+                  t("subject_telemetry"),
+                  t("subject_ai"),
+                  t("subject_plc"),
+                  t("subject_microcontroller"),
+                  t("subject_microprocessor"),
+                  t("subject_power_electronics"),
+                  t("subject_instrumentation"),
+                  t("subject_automation"),
                 ].map((subject, index) => (
                   <div
                     key={index}
@@ -578,13 +557,13 @@ export default function Home() {
 
               {/* Floating Info Badges */}
               <div className="absolute -top-6 -right-6 bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-xl animate-bounce">
-                🎯 5th Semester
+                🎯 {t("edu_5th_semester")}
               </div>
               <div className="absolute -bottom-6 -left-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-xl animate-bounce delay-300">
-                ⭐ 3.7 GPA
+                ⭐ {t("edu_gpa_value")}
               </div>
               <div className="absolute top-1/4 -left-8 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
-                🚀 2022-Present
+                🚀 {t("timeline_2022_title")}
               </div>
             </div>
           </div>
@@ -592,7 +571,7 @@ export default function Home() {
       ),
     },
     {
-      title: "2020 - 2022",
+      title: t("timeline_2020_title"),
       content: (
         <div className="flex flex-col lg:flex-row items-center gap-8">
           {/* Left side: Enhanced Image */}
@@ -615,7 +594,7 @@ export default function Home() {
 
               {/* Achievement Badge */}
               <div className="absolute -top-4 -right-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
-                🏆 89.21
+                🏆 {t("edu_score_value")}
               </div>
             </div>
           </div>
@@ -630,9 +609,11 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                    MAN 1 Bekasi
+                    {t("edu_man_bekasi")}
                   </h3>
-                  <p className="text-sm text-gray-300">Science Program (IPA)</p>
+                  <p className="text-sm text-gray-300">
+                    {t("edu_science_program")}
+                  </p>
                 </div>
               </div>
 
@@ -640,18 +621,16 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
                   <span className="text-sm text-orange-400 font-semibold">
-                    Completed
+                    {t("edu_status_completed")}
                   </span>
                 </div>
                 <span className="text-sm text-orange-400 font-medium">
-                  2020 - 2022
+                  {t("timeline_2020_title")}
                 </span>
               </div>
 
               <p className="text-gray-300 text-sm leading-relaxed">
-                Specialized in Natural Sciences with focus on Mathematics,
-                Physics, Chemistry, and Biology. Built strong foundation in
-                analytical thinking and scientific methodology.
+                {t("edu_man_description")}
               </p>
             </div>
 
@@ -660,13 +639,15 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="text-lg font-semibold text-white mb-1">
-                    Academic Achievement
+                    {t("edu_academic_achievement")}
                   </h4>
-                  <p className="text-gray-300 text-sm">Final Semester Score</p>
+                  <p className="text-gray-300 text-sm">
+                    {t("edu_final_score")}
+                  </p>
                 </div>
                 <div className="text-right">
                   <div className="text-3xl font-bold text-yellow-400 group-hover:scale-110 transition-transform duration-300">
-                    89.21
+                    {t("edu_score_value")}
                   </div>
                   <div className="text-xs text-gray-300">/ 100</div>
                 </div>
@@ -705,8 +686,8 @@ export default function Home() {
             className="relative bg-[#1F2937] h-screen overflow-hidden"
           >
             <div className="absolute top-6 right-6 z-50">
-    <LanguageToggle />
-  </div>
+              <LanguageToggle />
+            </div>
             {/* 3D Marquee sebagai Background penuh */}
             <div className="absolute inset-0 w-[120%] h-full -left-[20%]">
               {" "}
@@ -741,14 +722,14 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-2">
                     <h1 className="text-2xl text-white font-bold">
-                      I'm Ready For Job
+                      {t("readyForJob")}
                     </h1>
                   </div>
                 </AnimatedContent>
 
                 <div className="flex flex-col items-start">
                   <SplitText
-                    text="I'm Muhammad Ibrahim Musyaffa"
+                    text={t("myName")}
                     className="text-4xl font-semibold text-start text-white"
                     delay={50}
                     duration={0.6}
@@ -761,7 +742,7 @@ export default function Home() {
                     textAlign="center"
                   />
                   <SplitText
-                    text="Mahasiswa D4 Teknik Elektronika"
+                    text={t("myTitle")}
                     className="text-4xl font-semibold text-start text-[#6366F1]"
                     delay={75}
                     duration={0.6}
@@ -776,7 +757,7 @@ export default function Home() {
                 </div>
 
                 <BlurText
-                  text="I am a student at Yogyakarta State University specializing in robotics, AI, machine learning, IoT, software development, and UAV technology. I'm a visionary problem-solver with strong teamwork skills, passionate about driving technological innovation that creates positive social impact."
+                  text={t("myDescription")}
                   delay={75}
                   animateBy="words"
                   direction="top"
@@ -805,7 +786,7 @@ export default function Home() {
                       showBorder={false}
                       className="px-10 py-6 rounded-lg border"
                     >
-                      Contact Me
+                      {t("contactMe")}
                     </GradientText>
                   </div>
                 </div>
@@ -815,15 +796,14 @@ export default function Home() {
           {/* ScrollVelocity - Bottom */}
           <div className="relative w-full bg-black z-30">
             <ScrollVelocity
-              texts={["My Portfolio", "Scroll Down"]}
+              texts={[t("myPortfolio"), t("scrollDown")]}
               className="custom-scroll-text text-white"
             />
           </div>
 
           {/* Education Section */}
           <div id="Education" className="relative group">
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 z-[1]">
-            </div>
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 z-[1]"></div>
 
             <div className="relative z-[2]">
               <Timeline data={data} />
@@ -871,45 +851,32 @@ export default function Home() {
 
                     <div className="flex items-center gap-2 mb-4">
                       <span className="text-emerald-400 font-medium">
-                        Electrical Engineer Internship
+                        {t("internshipTitle")}
                       </span>
                       <span className="text-sm text-gray-400">
-                        • Bekasi, Indonesia
+                        {t("internshipLocation")}
                       </span>
                     </div>
 
                     <p className="text-gray-300 text-base mb-4 leading-relaxed">
-                      PT AM/NS Indonesia is a manufacturing company that
-                      processes cold-rolled steel, galvanized steel, and
-                      annealed steel in sheet and coil forms.
+                      {t("companyDescription")}
                     </p>
 
                     <h4 className="text-white font-semibold mb-2">
-                      Key Responsibilities:
+                      {t("keyResponsibilities")}
                     </h4>
                     <ul className="space-y-3 text-gray-300">
                       <li className="flex gap-3">
                         <div className="flex-shrink-0 mt-1">
                           <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                         </div>
-                        <p>
-                          Analyzed thermocouple sensor functions in the
-                          reheating tube furnace process on the continuous
-                          galvanizing line to ensure optimal temperature control
-                          in the galvanization process.
-                        </p>
+                        <p>{t("responsibility1")}</p>
                       </li>
                       <li className="flex gap-3">
                         <div className="flex-shrink-0 mt-1">
                           <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                         </div>
-                        <p>
-                          Performed maintenance and repair of electrical
-                          equipment including light repair, steel sheet counter
-                          machine repair, regular panel voltage checks, assisted
-                          with drive motor checks, motor greasing, and other
-                          tasks to maintain operational reliability.
-                        </p>
+                        <p>{t("responsibility2")}</p>
                       </li>
                     </ul>
                   </div>
@@ -998,12 +965,10 @@ export default function Home() {
                 {/* Text Content */}
                 <div className="flex flex-col space-y-4 relative z-20">
                   <h2 className="text-4xl font-bold text-white">
-                    Robotika UNY
+                    {t("robotika_uny_title")}
                   </h2>
                   <p className="text-lg text-gray-300">
-                    UNY Robotics is a division of the Engineering Technology UKM
-                    which operates in the field of technology, especially
-                    robotics.
+                    {t("robotika_uny_description")}
                   </p>
                 </div>
               </div>
@@ -1102,13 +1067,10 @@ export default function Home() {
                   {/* Text Content */}
                   <div className="flex flex-col space-y-6 min-w-[400px] relative z-20">
                     <h2 className="text-4xl font-bold text-white text-right">
-                      HMVE UNY
+                      {t("hmve_uny_title")}
                     </h2>
                     <p className="text-lg text-gray-300 text-right whitespace-norma">
-                      HMVE as a facilitator in developing academic and
-                      non-academic interests, channeling aspirations, and
-                      fostering a social spirit among Electrical and Electronics
-                      Engineering students.
+                      {t("hmve_uny_description")}
                     </p>
                   </div>
 
@@ -1189,15 +1151,14 @@ export default function Home() {
                     translateZ="50"
                     className="text-xl font-bold text-white"
                   >
-                    Certification 1
+                    {t("certification1_title")}
                   </CardItem>
                   <CardItem
                     as="p"
                     translateZ="60"
                     className="text-slate-300 text-sm max-w-sm mt-4"
                   >
-                    Drone Safety And Ethics Training Course And Pass The test
-                    for Basic Drone Maneuvers
+                    {t("certification1_description")}
                   </CardItem>
                   <CardItem
                     translateZ="100"
@@ -1221,7 +1182,7 @@ export default function Home() {
                         url="https://member.apdi.id/search?number=322404180001"
                         className="px-4 py-2 rounded-xl bg-white text-black text-xs font-bold hover:bg-gray-100 transition-colors duration-200 inline-block relative z-40"
                       >
-                        View Certification
+                        {t("viewCertification")}
                       </LinkPreview>
                     </CardItem>
                   </div>
@@ -1235,14 +1196,14 @@ export default function Home() {
                     translateZ="50"
                     className="text-xl font-bold text-white"
                   >
-                    Certification 2
+                    {t("certification2_title")}
                   </CardItem>
                   <CardItem
                     as="p"
                     translateZ="60"
                     className="text-slate-300 text-sm max-w-sm mt-4"
                   >
-                    Fundamentals of Artificial Intelligence Implementation.
+                    {t("certification2_description")}
                   </CardItem>
                   <CardItem
                     translateZ="100"
@@ -1266,7 +1227,7 @@ export default function Home() {
                         url="https://drive.google.com/file/d/1FGHWtcAOx-5gADC7wn3ZqjzNHGE5isys/view?usp=drive_link"
                         className="px-4 py-2 rounded-xl bg-white text-black text-xs font-bold hover:bg-gray-100 transition-colors duration-200 inline-block relative z-40"
                       >
-                        View Certification
+                        {t("viewCertification")}
                       </LinkPreview>
                     </CardItem>
                   </div>
@@ -1280,14 +1241,14 @@ export default function Home() {
                     translateZ="50"
                     className="text-xl font-bold text-white"
                   >
-                    Certification 3
+                    {t("certification3_title")}
                   </CardItem>
                   <CardItem
                     as="p"
                     translateZ="60"
                     className="text-slate-300 text-sm max-w-sm mt-4"
                   >
-                    Backend in Website Development.
+                    {t("certification3_description")}
                   </CardItem>
                   <CardItem
                     translateZ="100"
@@ -1311,7 +1272,7 @@ export default function Home() {
                         url="https://drive.google.com/file/d/1C-qqs5tpuQjiMM8U8KhAaNOtvbgMHgSU/view?usp=drivesdk"
                         className="px-4 py-2 rounded-xl bg-white text-black text-xs font-bold hover:bg-gray-100 transition-colors duration-200 inline-block relative z-40"
                       >
-                        View Certification
+                        {t("viewCertification")}
                       </LinkPreview>
                     </CardItem>
                   </div>
@@ -1325,14 +1286,14 @@ export default function Home() {
                     translateZ="50"
                     className="text-xl font-bold text-white"
                   >
-                    Certification 4
+                    {t("certification4_title")}
                   </CardItem>
                   <CardItem
                     as="p"
                     translateZ="60"
                     className="text-slate-300 text-sm max-w-sm mt-4"
                   >
-                    Getting Started with Java Programming.
+                    {t("certification4_description")}
                   </CardItem>
                   <CardItem
                     translateZ="100"
@@ -1356,7 +1317,7 @@ export default function Home() {
                         url="https://www.dicoding.com/certificates/4EXGV0K1QXRL"
                         className="px-4 py-2 rounded-xl bg-white text-black text-xs font-bold hover:bg-gray-100 transition-colors duration-200 inline-block relative z-40"
                       >
-                        View Certification
+                        {t("viewCertification")}
                       </LinkPreview>
                     </CardItem>
                   </div>
@@ -1370,14 +1331,14 @@ export default function Home() {
                     translateZ="50"
                     className="text-xl font-bold text-white"
                   >
-                    Certification 5
+                    {t("certification5_title")}
                   </CardItem>
                   <CardItem
                     as="p"
                     translateZ="60"
                     className="text-slate-300 text-sm max-w-sm mt-4"
                   >
-                    Linear Models in Machine Learning: Fundamentals.
+                    {t("certification5_description")}
                   </CardItem>
                   <CardItem
                     translateZ="100"
@@ -1401,7 +1362,7 @@ export default function Home() {
                         url="https://drive.google.com/file/d/1JMUljVS43GyUNsW2pbMVE9ELnzyNCTXt/view?usp=drive_link"
                         className="px-4 py-2 rounded-xl bg-white text-black text-xs font-bold hover:bg-gray-100 transition-colors duration-200 inline-block relative z-40"
                       >
-                        View Certification
+                        {t("viewCertification")}
                       </LinkPreview>
                     </CardItem>
                   </div>
@@ -1415,14 +1376,14 @@ export default function Home() {
                     translateZ="50"
                     className="text-xl font-bold text-white"
                   >
-                    Certification 6
+                    {t("certification6_title")}
                   </CardItem>
                   <CardItem
                     as="p"
                     translateZ="60"
                     className="text-slate-300 text-sm max-w-sm mt-4"
                   >
-                    Young Network Administrator Competency Certificate.
+                    {t("certification6_description")}
                   </CardItem>
                   <CardItem
                     translateZ="100"
@@ -1446,7 +1407,7 @@ export default function Home() {
                         url="https://drive.google.com/file/d/1LKeS9uEfsTwqINOVKv-6TC3qBdl713Rv/view?usp=sharing"
                         className="px-4 py-2 rounded-xl bg-white text-black text-xs font-bold hover:bg-gray-100 transition-colors duration-200 inline-block relative z-40"
                       >
-                        View Certification
+                        {t("viewCertification")}
                       </LinkPreview>
                     </CardItem>
                   </div>
@@ -1687,12 +1648,9 @@ export default function Home() {
             {/* Header dengan margin yang lebih kecil */}
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-white mb-2">
-                Let's Connect
+                {t("letsConnect")}
               </h2>
-              <p className="text-gray-300 text-sm">
-                Ready to collaborate? Reach out and let's build something
-                amazing together.
-              </p>
+              <p className="text-gray-300 text-sm">{t("readyToCollaborate")}</p>
             </div>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -1700,7 +1658,7 @@ export default function Home() {
               <div>
                 <p>
                   <span className="text-xs tracking-wide text-gray-400 uppercase">
-                    Call us
+                    {t("callUs")}
                   </span>
                   <a
                     href="tel:+6281293478458"
@@ -1710,6 +1668,40 @@ export default function Home() {
                   </a>
                 </p>
 
+                {/* Download CV Button - ALTERNATIF DENGAN EFEK CARD */}
+                <div className="mt-4">
+                  <div className="group relative">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+                    <a
+                      href="/files/Muhammad_Ibrahim_Musyaffa_CV.pdf"
+                      download
+                      className="relative flex items-center gap-3 px-6 py-3 bg-gray-800 rounded-lg leading-none divide-x divide-gray-500"
+                    >
+                      <span className="flex items-center gap-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-blue-400 group-hover:text-blue-300 transition"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                        <span className="text-gray-100 group-hover:text-white transition duration-200">
+                          {t("downloadCV")}
+                        </span>
+                      </span>
+                      <span className="pl-3 text-blue-400 group-hover:text-blue-300 transition duration-200">
+                        PDF
+                      </span>
+                    </a>
+                  </div>
+                </div>
                 {/* Enhanced Social Links dengan spacing yang lebih kompak */}
                 <ul className="mt-6 flex gap-3">
                   {/* GitHub */}
@@ -1719,7 +1711,7 @@ export default function Home() {
                       rel="noreferrer"
                       target="_blank"
                       className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-800 text-gray-300 transition-all duration-300 hover:bg-gray-700 hover:text-white hover:scale-110"
-                      title="GitHub"
+                      title={t("githubProfile")}
                     >
                       <span className="sr-only">GitHub</span>
                       <svg
@@ -1743,7 +1735,7 @@ export default function Home() {
                       rel="noreferrer"
                       target="_blank"
                       className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-800 text-gray-300 transition-all duration-300 hover:bg-blue-600 hover:text-white hover:scale-110"
-                      title="LinkedIn"
+                      title={t("linkedinProfile")}
                     >
                       <span className="sr-only">LinkedIn</span>
                       <svg
@@ -1765,7 +1757,7 @@ export default function Home() {
                       className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-800 text-gray-300 transition-all duration-300 hover:bg-pink-600 hover:text-white hover:scale-110"
                       title="Instagram"
                     >
-                      <span className="sr-only">Instagram</span>
+                      <span className="sr-only">{t("instagramProfile")}</span>
                       <svg
                         className="w-5 h-5"
                         fill="currentColor"
@@ -1785,7 +1777,7 @@ export default function Home() {
                       className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-800 text-gray-300 transition-all duration-300 hover:bg-green-600 hover:text-white hover:scale-110"
                       title="WhatsApp"
                     >
-                      <span className="sr-only">WhatsApp</span>
+                      <span className="sr-only">{t("whatsappContact")}</span>
                       <svg
                         className="w-5 h-5"
                         fill="currentColor"
@@ -1803,7 +1795,7 @@ export default function Home() {
                       className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-800 text-gray-300 transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-110"
                       title="Email"
                     >
-                      <span className="sr-only">Email</span>
+                      <span className="sr-only">{t("emailContact")}</span>
                       <svg
                         className="w-5 h-5"
                         fill="none"
@@ -1825,7 +1817,7 @@ export default function Home() {
               {/* Quick Contact Form dengan ukuran yang lebih kompak */}
               <div className="bg-gray-800 rounded-2xl p-5 shadow-lg border border-gray-700">
                 <h3 className="text-lg font-semibold text-white mb-3">
-                  Quick Message
+                  {t("quickMessage")}
                 </h3>
                 <form
                   action="https://formsubmit.co/ibrahimusyaffa@gmail.com"
@@ -1849,26 +1841,26 @@ export default function Home() {
                   <input
                     type="text"
                     name="name"
-                    placeholder="Your Name"
+                    placeholder={t("yourName")}
                     required
                     className="w-full px-3 py-2.5 rounded-lg border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-sm"
                   />
                   <input
                     type="email"
                     name="email"
-                    placeholder="Your Email"
+                    placeholder={t("yourEmail")}
                     required
                     className="w-full px-3 py-2.5 rounded-lg border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-sm"
                   />
                   <input
                     type="text"
                     name="subject"
-                    placeholder="Subject"
+                    placeholder={t("subject")}
                     className="w-full px-3 py-2.5 rounded-lg border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-sm"
                   />
                   <textarea
                     name="message"
-                    placeholder="Your Message"
+                    placeholder={t("yourMessage")}
                     rows={3}
                     required
                     className="w-full px-3 py-2.5 rounded-lg border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none text-sm"
@@ -1877,7 +1869,7 @@ export default function Home() {
                     type="submit"
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-all duration-300 transform hover:scale-105 focus:ring-4 focus:ring-blue-300 text-sm"
                   >
-                    Send Message
+                    {t("sendMessage")}
                   </button>
                 </form>
               </div>
@@ -1886,12 +1878,10 @@ export default function Home() {
             {/* Footer dengan margin yang lebih kecil */}
             <div className="mt-8 border-t border-gray-700 pt-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <p className="text-xs text-gray-400">
-                  &copy; 2025 Muhammad Ibrahim Musyaffa. All rights reserved.
-                </p>
+                <p className="text-xs text-gray-400">{t("copyright")}</p>
                 <div className="flex items-center gap-2 text-xs text-gray-400">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  Available for freelance work
+                  {t("availableForFreelance")}
                 </div>
               </div>
             </div>

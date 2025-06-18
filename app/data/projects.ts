@@ -12,20 +12,21 @@ export interface ProjectData {
   duration: string;
   teamSize: string;
   status: string;
+  slug: string;
 }
 
 export const projectsData = {
   "smart-traffic-light": {
-    title: "Smart Home Automation",
-    category: "Electronics",
-    description: "ESP32-based home automation prototype for environmental monitoring and control",
-    longDescription: "This project develops a smart home automation prototype using ESP32 microcontroller to automatically monitor and control environmental conditions. The system is designed to enhance comfort and energy efficiency by regulating temperature, humidity, and room lighting. The system utilizes DHT22 sensor for measuring temperature and humidity, PIR sensor for human motion detection, and LDR sensor for light level detection. Data from all three sensors is processed in real-time to control fans, bathroom lights, and terrace lights through relay modules. Lights and fans are activated automatically according to needs, creating an energy-efficient and environmentally friendly system. With microcontroller-based technology integration and synchronized automatic responses, this project becomes a practical solution for creating smart, comfortable, and energy-efficient spaces.",
-    technologies: ["ESP32", "DHT22 Sensor", "PIR Sensor", "LDR Sensor", "Relay Modules", "Arduino IDE", "C++", "Real-time Processing"] as const,
-    features: ["Automatic Temperature Control", "Motion Detection", "Light Level Sensing", "Energy Efficiency", "Real-time Environmental Monitoring", "Automated Lighting System"] as const,
+    title: "Smart Traffic Light System",
+    category: "Computer Vision",
+    description: "YOLO-based intelligent traffic light system for dynamic traffic flow optimization",
+    longDescription: "This project is the development of a smart traffic light system to overcome the inefficiency of conventional lights that cannot dynamically adjust to vehicle density levels. The system uses YOLO to detect vehicle saturation degrees through cameras at intersections. The detection data is processed by a microcomputer to determine adaptive light durations that are sent to the microcontroller via the MQTT protocol. This innovation enables more responsive traffic light control, reduces queues, and improves travel efficiency in congested areas.",
+    technologies: ["YOLO Object Detection", "MQTT Protocol", "Microcontroller", "Microcomputer", "Computer Vision", "Python", "Real-time Processing", "Traffic Engineering"] as const,
+    features: ["Dynamic Traffic Light Timing", "Vehicle Density Detection", "Real-time Monitoring", "Adaptive Signal Control", "Queue Reduction", "Congestion Management"] as const,
     myTasks: [
-      "Designed and assembled wiring systems for electronic components of the project",
-      "Developed and built sensor-based home automation system to automatically monitor and control room environmental conditions", 
-      "Programmed integration of DHT22, LDR, and PIR sensors for temperature, humidity, lighting control, and human motion detection"
+      "Participated in technical discussions to design the YOLO-based system used in the project",
+      "Assisted in the creation of the device prototype, including system design and implementation",
+      "Searched for suitable testing locations for the prototype through internet platform analysis"
     ] as const,
     images: [
       "./images/project/Lampu Lalu Lintas Cerdas Berbasis YOLO/project-traffic-light.jpeg",
@@ -36,7 +37,8 @@ export const projectsData = {
     liveUrl: "https://smart-home-demo.com",
     duration: "2 months",
     teamSize: "3 people",
-    status: "Completed"
+    status: "Completed",
+    slug: "smart-traffic-light"
   },
   "robotics-project": {
   title: "Line Following Robot",
@@ -60,7 +62,8 @@ export const projectsData = {
   liveUrl: "",
   duration: "3 months",
   teamSize: "4 people",
-  status: "Completed"
+  status: "Completed",
+  slug: "robotics-project"
 },
   "home-automation-project": {
   title: "Microcontroller-Based Home Automation System",
@@ -83,7 +86,8 @@ export const projectsData = {
   liveUrl: "",
   duration: "3 months",
   teamSize: "4 people", 
-  status: "Completed"
+  status: "Completed",
+  slug: "home-automation-project"
 },
   "automatic-door-project": {
   title: "Automatic Door System with Fuzzy Logic",
@@ -106,7 +110,8 @@ export const projectsData = {
   liveUrl: "",
   duration: "1 month",
   teamSize: "4 people",
-  status: "Completed"
+  status: "Completed",
+  slug: "automatic-door-project"
 },
   "gas-detection-system": {
   title: "Gas Detection System with PID Fan Control",
@@ -128,7 +133,8 @@ export const projectsData = {
   liveUrl: "",
   duration: "3 months",
   teamSize: "4 people", 
-  status: "Completed"
+  status: "Completed",
+  slug: "gas-detection-system"
 },
   "face-recognition-system": {
   title: "Face Detection and Recognition System",
@@ -150,7 +156,8 @@ export const projectsData = {
   liveUrl: "",
   duration: "2 months",
   teamSize: "3 people", 
-  status: "Completed"
+  status: "Completed",
+  slug: "face-recognition-system"
 }
 } as const;
 
